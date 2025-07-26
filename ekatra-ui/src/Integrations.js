@@ -326,6 +326,48 @@ const Integrations = () => {
         </div>
       </div>
 
+      {/* Google Classroom Data */}
+      {classroomData && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <InteractiveCard className="p-6" glowColor="green">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <AnimatedIcon icon="🎓" animation="bounce" />
+              Google Classroom Data
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Courses ({classroomData.courses.length})</h4>
+                <div className="space-y-2">
+                  {classroomData.courses.slice(0, 3).map(course => (
+                    <div key={course.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <h5 className="font-medium text-gray-900 dark:text-white">{course.name}</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{course.section}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Students ({classroomData.students.length})</h4>
+                <div className="space-y-2">
+                  {classroomData.students.slice(0, 3).map(student => (
+                    <div key={student.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <h5 className="font-medium text-gray-900 dark:text-white">{student.name}</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{student.email}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </InteractiveCard>
+        </motion.div>
+      )}
+
       {/* Integration Benefits */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
