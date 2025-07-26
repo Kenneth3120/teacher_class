@@ -341,9 +341,26 @@ const StudentManager = () => {
                   <AnimatedIcon icon="📊" animation="bounce" />
                   Import Students from Google Sheets
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Expected columns: Name, Grade, Email, Subjects, Average Score (0-100), Completion Rate (0-100), Participation (0-100)
-                </p>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                    📋 Required Sheet Format:
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Column A: Name | Column B: Grade | Column C: Email | Column D: Subjects<br/>
+                    Column E: Average Score (0-100) | Column F: Completion Rate (0-100) | Column G: Participation (0-100)
+                  </p>
+                </div>
+                
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-2">
+                    ⚠️ Important Setup Requirements:
+                  </p>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                    1. Make your Google Sheet publicly accessible (Share > Anyone with the link can view)<br/>
+                    2. Ensure Google Sheets API is enabled in your Google Cloud Console<br/>
+                    3. First row should contain headers as specified above
+                  </p>
+                </div>
                 <div className="flex gap-3">
                   <input
                     type="text"
