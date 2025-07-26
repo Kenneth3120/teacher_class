@@ -23,7 +23,7 @@ import AnimatedIcon from "./components/AnimatedIcon";
 import AnimatedCounter from "./components/AnimatedCounter";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 
-// Enhanced Feature Card Component with advanced interactions
+// Simplified Feature Card Component
 const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -32,7 +32,7 @@ const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats 
       className="relative group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -8, scale: 1.02 }}
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
@@ -42,47 +42,29 @@ const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats 
         hoverable={true}
       >
         <div className="flex items-center justify-between mb-4">
-          <AnimatedIcon
-            icon={icon}
-            size={32}
-            animation="float"
-            hover={true}
-          />
+          <div className="text-2xl">{icon}</div>
           {stats && (
             <div className="text-right">
-              <motion.div 
-                className="text-2xl font-bold text-gray-900 dark:text-white"
-                animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
-              >
-                <AnimatedCounter end={stats.value} />
-              </motion.div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats.value}
+              </div>
               <div className="text-xs text-gray-600 dark:text-gray-300">{stats.label}</div>
             </div>
           )}
         </div>
         
-        <motion.h3 
-          className="text-lg font-semibold mb-2 text-gray-900 dark:text-white"
-          animate={isHovered ? { x: 5 } : { x: 0 }}
-        >
+        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
           {title}
-        </motion.h3>
+        </h3>
         
-        <motion.p 
-          className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"
-          animate={isHovered ? { opacity: 1 } : { opacity: 0.8 }}
-        >
+        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           {description}
-        </motion.p>
+        </p>
         
-        {/* Animated arrow */}
-        <motion.div
-          className="absolute bottom-4 right-4 text-gray-400"
-          animate={isHovered ? { x: 5, opacity: 1 } : { x: 0, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <AnimatedIcon icon="→" size={16} animation="bounce" />
-        </motion.div>
+        {/* Simple arrow */}
+        <div className={`absolute bottom-4 right-4 text-gray-400 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          →
+        </div>
       </InteractiveCard>
     </motion.div>
   );
