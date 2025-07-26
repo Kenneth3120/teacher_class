@@ -6,6 +6,7 @@ import Dashboard from "./Dashboard";
 import { ThemeProvider } from "./components/ThemeContext";
 import ParticleBackground from "./components/ParticleBackground";
 import FloatingElements from "./components/FloatingElements";
+import "./i18n"; // Initialize i18n
 
 // Enhanced loading component
 const EnhancedLoader = () => (
