@@ -85,7 +85,9 @@ export const NotificationProvider = ({ children }) => {
       notifications,
       addNotification,
       removeNotification,
-      clearAll
+      clearAll,
+      loadPersistentNotifications,
+      clearPersistentNotifications
     }}>
       {children}
       <NotificationContainer />
