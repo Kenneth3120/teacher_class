@@ -11,11 +11,20 @@ const StudentManager = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [sheetUrl, setSheetUrl] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
   const [newStudent, setNewStudent] = useState({
     name: "",
     grade: "",
-    rating: "3",
-    subjects: ""
+    email: "",
+    subjects: "",
+    averageScore: 75,
+    completionRate: 85,
+    participation: 80,
+    assignmentsCompleted: 12,
+    totalAssignments: 15
   });
 
   useEffect(() => {
