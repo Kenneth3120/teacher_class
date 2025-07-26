@@ -44,6 +44,7 @@ const ParentCommunicator = () => {
   const [showCompose, setShowCompose] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailStatus, setEmailStatus] = useState(null);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     fetchStudents();
