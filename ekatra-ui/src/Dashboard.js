@@ -658,37 +658,10 @@ const Dashboard = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900 relative overflow-hidden">
-      {/* Background Effects */}
-      <ParticleBackground type="floating" theme={theme} />
-      <FloatingElements theme={theme} />
-      
-      {/* Morphing background shapes */}
-      <motion.div
-        className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-400/10 to-purple-600/10 morphing-shape opacity-50"
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      
-      <motion.div
-        className="absolute bottom-20 left-20 w-64 h-64 bg-gradient-to-br from-purple-400/10 to-pink-600/10 morphing-shape opacity-50"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          rotate: [360, 180, 0],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900 relative">
+      {/* Subtle background effects */}
+      <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-blue-400/5 to-purple-600/5 rounded-full opacity-50" />
+      <div className="absolute bottom-20 left-20 w-48 h-48 bg-gradient-to-br from-purple-400/5 to-pink-600/5 rounded-full opacity-50" />
       
       <div className="relative z-10">
         {renderNavBar()}
