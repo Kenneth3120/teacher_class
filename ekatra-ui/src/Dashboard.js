@@ -463,15 +463,8 @@ const Dashboard = ({ user }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {/* Background floating elements */}
-          <FloatingElements theme={theme} />
-          
           <motion.h2 
             className="text-4xl font-bold gradient-text mb-4"
-            animate={{ 
-              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-            }}
-            transition={{ duration: 5, repeat: Infinity }}
           >
             Your Teaching Dashboard
           </motion.h2>
