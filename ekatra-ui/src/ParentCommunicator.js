@@ -167,12 +167,6 @@ const ParentCommunicator = () => {
       setSendingEmail(false);
     }
   };
-      
-   
-    } finally {
-      setSendingEmail(false);
-    }
-  };
 
   const markAsRead = (messageId) => {
     setMessages(messages.map(msg => 
