@@ -230,10 +230,18 @@ const NotificationContainer = () => {
 
 // Notification Bell Component for UI
 export const NotificationBell = () => {
-  const { notifications, clearAll } = useNotifications();
+  const { notifications, clearAll, loadPersistentNotifications } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [allNotifications, setAllNotifications] = useState([]);
   
-  const unreadCount = notifications.length;
+  useEffect(() => {
+    // Combine current and persistent notifications
+    const persistentNotifications = loadPersistentNotifications();
+    const combined = [...persistentNotifications, ...notifications];
+    setAllNotifications(combined);
+  }, [notifications, loadPersistentNotifications]);
+  
+  const unreadCount = allNotifications.length;
 
   return (
     <div className="relative">
