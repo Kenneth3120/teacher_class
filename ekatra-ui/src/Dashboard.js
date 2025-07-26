@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { db } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { useTheme } from "./components/ThemeContext";
 import Settings from "./Settings";
 import LessonPlan from "./LessonPlan";
 import QuizGenerator from "./QuizGenerator";
@@ -11,6 +13,14 @@ import ParentCommunicator from "./ParentCommunicator";
 import DoubtScheduler from "./DoubtScheduler";
 import Integrations from "./Integrations";
 import Translator from "./Translator";
+import AskAgent from "./AskAgent";
+import ParticleBackground from "./components/ParticleBackground";
+import FloatingElements from "./components/FloatingElements";
+import InteractiveCard from "./components/InteractiveCard";
+import MorphingButton from "./components/MorphingButton";
+import AnimatedIcon from "./components/AnimatedIcon";
+import AnimatedCounter from "./components/AnimatedCounter";
+import LoadingSkeleton from "./components/LoadingSkeleton";
 
 // Enhanced Feature Card Component
 const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats }) => {
