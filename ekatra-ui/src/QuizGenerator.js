@@ -66,10 +66,14 @@ const QuizGenerator = () => {
     return questions;
   };
 
-  // Create Google Form using the Forms API
+  // Create Google Form using the new Google Forms service
   const createGoogleForm = async () => {
     if (!quiz || !quizData || quizData.length === 0) {
-      alert('Please generate a quiz first before creating a Google Form.');
+      addNotification({
+        type: 'error',
+        title: 'Quiz Required',
+        message: 'Please generate a quiz first before creating a Google Form.'
+      });
       return;
     }
 
@@ -77,81 +81,64 @@ const QuizGenerator = () => {
     setError(null);
 
     try {
-      // First, create the form
-      const createFormResponse = await fetch('https://forms.googleapis.com/v1/forms', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.REACT_APP_GOOGLE_FORMS_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          info: {
-            title: `${topic} Quiz - Grade ${grade}`,
-            description: `This quiz contains ${numQuestions} multiple choice questions about ${topic}. Please select the best answer for each question.`
-          }
-        })
+      addNotification({
+        type: 'info',
+        title: 'Creating Form',
+        message: 'Setting up Google authentication...'
       });
 
-      if (!createFormResponse.ok) {
-        throw new Error(`Failed to create form: ${createFormResponse.status}`);
-      }
+      // Create the form
+      const formData = await GoogleFormsService.createForm(
+        `${topic} Quiz - Grade ${grade}`,
+        `This quiz contains ${numQuestions} multiple choice questions about ${topic}. Please select the best answer for each question.`
+      );
 
-      const formData = await createFormResponse.json();
       const formId = formData.formId;
 
-      // Add questions to the form
-      const batchRequests = [];
-      
-      quizData.forEach((question, index) => {
-        if (question.options.length > 0) {
-          batchRequests.push({
-            createItem: {
-              item: {
-                title: question.title.replace(/^Question\s*\d+:?\s*/i, '').trim(),
-                questionItem: {
-                  question: {
-                    required: true,
-                    choiceQuestion: {
-                      type: 'RADIO',
-                      options: question.options.map(option => ({
-                        value: option
-                      }))
-                    }
-                  }
-                }
-              },
-              location: {
-                index: index
-              }
-            }
-          });
-        }
+      addNotification({
+        type: 'info',
+        title: 'Adding Questions',
+        message: 'Adding quiz questions to the form...'
       });
 
-      if (batchRequests.length > 0) {
-        const batchUpdateResponse = await fetch(`https://forms.googleapis.com/v1/forms/${formId}:batchUpdate`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.REACT_APP_GOOGLE_FORMS_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            requests: batchRequests
-          })
-        });
+      // Prepare questions for Google Forms
+      const formattedQuestions = quizData.map(question => ({
+        title: question.title.replace(/^Question\s*\d+:?\s*/i, '').trim(),
+        description: question.explanation || '',
+        options: question.options
+      }));
 
-        if (!batchUpdateResponse.ok) {
-          throw new Error(`Failed to add questions to form: ${batchUpdateResponse.status}`);
-        }
-      }
+      // Add questions to the form
+      await GoogleFormsService.addQuestionsToForm(formId, formattedQuestions);
 
-      // Set the form URL
-      const generatedFormUrl = `https://docs.google.com/forms/d/${formId}/edit`;
-      setFormUrl(generatedFormUrl);
-      
+      // Generate shareable and edit URLs
+      const shareableUrl = GoogleFormsService.getShareableLink(formId);
+      const editUrl = GoogleFormsService.getEditLink(formId);
+
+      setFormUrl({
+        shareable: shareableUrl,
+        edit: editUrl
+      });
+
+      addNotification({
+        type: 'success',
+        title: 'Form Created Successfully',
+        message: 'Your Google Form has been created and is ready to share!',
+        duration: 5000
+      });
+
     } catch (err) {
       console.error("Error creating Google Form:", err);
-      setError(`Failed to create Google Form: ${err.message}. This feature requires proper OAuth authentication.`);
+      setError(`Failed to create Google Form: ${err.message}`);
+      
+      addNotification({
+        type: 'error',
+        title: 'Form Creation Failed',
+        message: err.message.includes('authentication') 
+          ? 'Please sign in to your Google account and grant necessary permissions.'
+          : 'Failed to create Google Form. Please try again.',
+        duration: 7000
+      });
     } finally {
       setCreatingForm(false);
     }
