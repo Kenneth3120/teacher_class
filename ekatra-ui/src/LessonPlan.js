@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { getGenerativeContent } from "./gemini"; // Assuming gemini.js handles the API call
+import { motion } from "framer-motion";
+import { getGenerativeContent } from "./gemini";
+import InteractiveCard from "./components/InteractiveCard";
+import MorphingButton from "./components/MorphingButton";
+import AnimatedIcon from "./components/AnimatedIcon";
+import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const LessonPlan = () => {
   const [topic, setTopic] = useState("");
