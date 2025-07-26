@@ -244,7 +244,7 @@ const Alfred = () => {
               disabled={isLoading}
             />
             <MorphingButton
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={!input.trim() || isLoading}
               loading={isLoading}
               variant="primary"
