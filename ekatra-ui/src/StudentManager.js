@@ -219,20 +219,120 @@ const StudentManager = () => {
         <div>
           <h2 className="text-3xl font-bold gradient-text mb-2">Student Management</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Comprehensive student profiles and progress tracking
+            Comprehensive student profiles with performance-based ratings and analytics
           </p>
         </div>
         
-        <MorphingButton
-          onClick={() => setShowAddForm(!showAddForm)}
-          variant="primary"
-        >
-          <AnimatedIcon icon="➕" animation="rotate" size={16} />
-          Add Student
-        </MorphingButton>
+        <div className="flex gap-3">
+          <MorphingButton
+            onClick={() => setShowImportForm(!showImportForm)}
+            variant="secondary"
+          >
+            <AnimatedIcon icon="📊" animation="bounce" size={16} />
+            Import from Sheets
+          </MorphingButton>
+          
+          <MorphingButton
+            onClick={() => setShowAddForm(!showAddForm)}
+            variant="primary"
+          >
+            <AnimatedIcon icon="➕" animation="rotate" size={16} />
+            Add Student
+          </MorphingButton>
+        </div>
       </motion.div>
 
-      {/* Add Student Form */}
+      {/* Performance Filter Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        <InteractiveCard className="p-4" glowColor="blue">
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-4 py-2">
+              Filter by Performance:
+            </span>
+            {[
+              { key: 'all', label: 'All Students', count: students.length },
+              { key: 'excellent', label: 'Excellent', count: students.filter(s => getPerformanceBand(calculatePerformanceRating(s)).band === 'Excellent').length },
+              { key: 'above-average', label: 'Above Average', count: students.filter(s => getPerformanceBand(calculatePerformanceRating(s)).band === 'Above Average').length },
+              { key: 'average', label: 'Average', count: students.filter(s => getPerformanceBand(calculatePerformanceRating(s)).band === 'Average').length },
+              { key: 'below-average', label: 'Below Average', count: students.filter(s => getPerformanceBand(calculatePerformanceRating(s)).band === 'Below Average').length },
+              { key: 'needs-improvement', label: 'Needs Improvement', count: students.filter(s => getPerformanceBand(calculatePerformanceRating(s)).band === 'Needs Improvement').length }
+            ].map((filter) => (
+              <motion.button
+                key={filter.key}
+                onClick={() => setSelectedFilter(filter.key)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  selectedFilter === filter.key
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-medium'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {filter.label}
+                <span className="ml-2 px-2 py-1 bg-black/10 rounded-full text-xs">
+                  {filter.count}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+        </InteractiveCard>
+      </motion.div>
+
+      {/* Google Sheets Import Form */}
+      <AnimatePresence>
+        {showImportForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <InteractiveCard className="p-6" glowColor="purple">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <AnimatedIcon icon="📊" animation="bounce" />
+                  Import Students from Google Sheets
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Expected columns: Name, Grade, Email, Subjects, Average Score (0-100), Completion Rate (0-100), Participation (0-100)
+                </p>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={sheetUrl}
+                    onChange={(e) => setSheetUrl(e.target.value)}
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <MorphingButton
+                    onClick={importFromGoogleSheets}
+                    disabled={!sheetUrl || importLoading}
+                    loading={importLoading}
+                    variant="success"
+                  >
+                    {!importLoading && (
+                      <AnimatedIcon icon="📥" animation="bounce" size={16} />
+                    )}
+                    Import
+                  </MorphingButton>
+                  <MorphingButton
+                    onClick={() => setShowImportForm(false)}
+                    variant="secondary"
+                  >
+                    Cancel
+                  </MorphingButton>
+                </div>
+              </div>
+            </InteractiveCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Enhanced Add Student Form */}
       <AnimatePresence>
         {showAddForm && (
           <motion.div
@@ -242,10 +342,10 @@ const StudentManager = () => {
             transition={{ duration: 0.3 }}
           >
             <InteractiveCard className="p-6" glowColor="green">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Student Name
+                    Student Name *
                   </label>
                   <input
                     type="text"
@@ -258,7 +358,7 @@ const StudentManager = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Grade
+                    Grade *
                   </label>
                   <input
                     type="text"
@@ -268,22 +368,18 @@ const StudentManager = () => {
                     placeholder="e.g., 5th Grade"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Performance Rating
+                    Email
                   </label>
-                  <select
-                    value={newStudent.rating}
-                    onChange={(e) => setNewStudent({...newStudent, rating: e.target.value})}
+                  <input
+                    type="email"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="1">1 - Needs Improvement</option>
-                    <option value="2">2 - Below Average</option>
-                    <option value="3">3 - Average</option>
-                    <option value="4">4 - Above Average</option>
-                    <option value="5">5 - Excellent</option>
-                  </select>
+                    placeholder="student@email.com"
+                  />
                 </div>
                 
                 <div>
@@ -298,9 +394,78 @@ const StudentManager = () => {
                     placeholder="Math, Science, English..."
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Average Score (0-100)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newStudent.averageScore}
+                    onChange={(e) => setNewStudent({...newStudent, averageScore: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Completion Rate (0-100%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newStudent.completionRate}
+                    onChange={(e) => setNewStudent({...newStudent, completionRate: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Participation (0-100%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newStudent.participation}
+                    onChange={(e) => setNewStudent({...newStudent, participation: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Assignments Completed
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newStudent.assignmentsCompleted}
+                    onChange={(e) => setNewStudent({...newStudent, assignmentsCompleted: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div className="md:col-span-1">
+                  <div className="pt-8 text-center">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                      Calculated Rating:
+                    </div>
+                    <div className="text-2xl font-bold gradient-text">
+                      {calculatePerformanceRating(newStudent)}/5 ⭐
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {getPerformanceBand(calculatePerformanceRating(newStudent)).band}
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-3 mt-6">
                 <MorphingButton
                   onClick={addStudent}
                   variant="success"
