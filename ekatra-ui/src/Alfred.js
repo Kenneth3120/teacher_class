@@ -11,6 +11,8 @@ const Alfred = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+  const speakResponseRef = useRef(null);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
