@@ -486,110 +486,176 @@ const StudentManager = () => {
         )}
       </AnimatePresence>
 
-      {/* Students Grid */}
+      {/* Enhanced Students Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence>
-          {students.map((student, index) => (
-            <motion.div
-              key={student.id}
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              layout
-            >
-              <InteractiveCard 
-                className="p-6" 
-                glowColor={
-                  student.rating >= 4 ? "green" :
-                  student.rating >= 3 ? "blue" : "amber"
-                }
+          {getFilteredStudents().map((student, index) => {
+            const rating = calculatePerformanceRating(student);
+            const performanceBand = getPerformanceBand(rating);
+            
+            return (
+              <motion.div
+                key={student.id}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                layout
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-medium">
-                      {student.name.charAt(0)}
+                <InteractiveCard 
+                  className="p-6" 
+                  glowColor={performanceBand.color}
+                >
+                  {/* Performance Band Badge */}
+                  <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium ${performanceBand.bgColor} text-${performanceBand.color}-600`}>
+                    {performanceBand.band}
+                  </div>
+
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-medium">
+                        {student.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                          {student.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {student.grade}
+                        </p>
+                        {student.email && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {student.email}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                        {student.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {student.grade}
-                      </p>
-                    </div>
+                    
+                    <motion.button
+                      onClick={() => deleteStudent(student.id)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <AnimatedIcon icon="🗑️" animation="shake" size={16} />
+                    </motion.button>
                   </div>
                   
-                  <motion.button
-                    onClick={() => deleteStudent(student.id)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <AnimatedIcon icon="🗑️" animation="shake" size={16} />
-                  </motion.button>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Performance</span>
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <motion.span
-                          key={i}
-                          className={`text-lg ${i < student.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                          animate={{ 
-                            scale: i < student.rating ? [1, 1.2, 1] : 1,
-                            rotate: i < student.rating ? [0, 10, -10, 0] : 0
-                          }}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity, 
-                            delay: i * 0.1 
-                          }}
-                        >
-                          ⭐
-                        </motion.span>
-                      ))}
+                  {/* Enhanced Performance Metrics */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">Overall Rating</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <motion.span
+                              key={i}
+                              className={`text-lg ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                              animate={{ 
+                                scale: i < rating ? [1, 1.2, 1] : 1,
+                                rotate: i < rating ? [0, 10, -10, 0] : 0
+                              }}
+                              transition={{ 
+                                duration: 2, 
+                                repeat: Infinity, 
+                                delay: i * 0.1 
+                              }}
+                            >
+                              ⭐
+                            </motion.span>
+                          ))}
+                        </div>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                          {rating}/5
+                        </span>
+                      </div>
                     </div>
+                    
+                    {/* Detailed Metrics */}
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
+                        <div className="text-blue-600 dark:text-blue-400 font-medium">Average Score</div>
+                        <div className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                          {student.averageScore || 75}%
+                        </div>
+                      </div>
+                      
+                      <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
+                        <div className="text-green-600 dark:text-green-400 font-medium">Completion</div>
+                        <div className="text-lg font-bold text-green-800 dark:text-green-200">
+                          {student.completionRate || 85}%
+                        </div>
+                      </div>
+                      
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg">
+                        <div className="text-purple-600 dark:text-purple-400 font-medium">Participation</div>
+                        <div className="text-lg font-bold text-purple-800 dark:text-purple-200">
+                          {student.participation || 80}%
+                        </div>
+                      </div>
+                      
+                      <div className="bg-amber-50 dark:bg-amber-900/20 p-2 rounded-lg">
+                        <div className="text-amber-600 dark:text-amber-400 font-medium">Assignments</div>
+                        <div className="text-lg font-bold text-amber-800 dark:text-amber-200">
+                          {student.assignmentsCompleted || 12}/{student.totalAssignments || 15}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {student.subjects && (
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">Subjects: </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {student.subjects}
+                        </span>
+                      </div>
+                    )}
+
+                    {student.importedFromSheets && (
+                      <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                        <AnimatedIcon icon="📊" size={12} />
+                        <span>Imported from Google Sheets</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  {student.subjects && (
-                    <div>
-                      <span className="text-sm text-gray-600 dark:text-gray-300">Subjects: </span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {student.subjects}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </InteractiveCard>
-            </motion.div>
-          ))}
+                </InteractiveCard>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 
-      {students.length === 0 && (
+      {/* Enhanced Empty State */}
+      {getFilteredStudents().length === 0 && (
         <motion.div
           className="text-center py-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <AnimatedIcon icon="👥" animation="float" size={64} />
+          <AnimatedIcon 
+            icon={selectedFilter === 'all' ? '👥' : '🔍'} 
+            animation="float" 
+            size={64} 
+          />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-4 mb-2">
-            No students yet
+            {selectedFilter === 'all' ? 'No students yet' : `No students in "${selectedFilter.replace('-', ' ')}" category`}
           </h3>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Add your first student to get started with management and tracking.
+            {selectedFilter === 'all' 
+              ? 'Add your first student to get started with management and tracking.'
+              : 'Try a different filter or add more students to see data here.'
+            }
           </p>
-          <MorphingButton
-            onClick={() => setShowAddForm(true)}
-            variant="primary"
-          >
-            <AnimatedIcon icon="➕" animation="bounce" size={16} />
-            Add Your First Student
-          </MorphingButton>
+          {selectedFilter === 'all' && (
+            <MorphingButton
+              onClick={() => setShowAddForm(true)}
+              variant="primary"
+            >
+              <AnimatedIcon icon="➕" animation="bounce" size={16} />
+              Add Your First Student
+            </MorphingButton>
+          )}
         </motion.div>
       )}
     </div>
