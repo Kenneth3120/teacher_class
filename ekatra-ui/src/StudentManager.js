@@ -151,8 +151,20 @@ const StudentManager = () => {
       const response = await fetch(url);
       const data = await response.json();
       
-      if (!data.values) {
-        alert('No data found in the sheet or sheet is private.');
+      console.log('Google Sheets API Response:', data);
+      
+      if (!response.ok) {
+        console.error('Google Sheets API Error:', data);
+        if (data.error) {
+          alert(`Google Sheets API Error: ${data.error.message}\n\nPossible solutions:\n1. Make sure the sheet is publicly accessible\n2. Check if the API key has Google Sheets API enabled\n3. Verify the sheet URL is correct`);
+        } else {
+          alert(`Failed to access Google Sheets. Status: ${response.status}\n\nPlease ensure:\n1. The sheet is shared publicly (Anyone with the link can view)\n2. The Google Sheets API is enabled for this project`);
+        }
+        return;
+      }
+      
+      if (!data.values || data.values.length === 0) {
+        alert('No data found in the sheet.\n\nPlease ensure:\n1. The sheet contains data\n2. The sheet is not empty\n3. Data is in the expected range (Sheet1!A:H)');
         return;
       }
 
