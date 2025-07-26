@@ -528,14 +528,14 @@ const Dashboard = ({ user }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <InteractiveCard className="p-8" glowColor="blue">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-medium border border-gray-200 dark:border-gray-700">
             <motion.h3 
               className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1 }}
             >
-              <AnimatedIcon icon="⚡" animation="glow" size={28} />
+              <span className="text-2xl">⚡</span>
               Quick Actions
             </motion.h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -544,27 +544,23 @@ const Dashboard = ({ user }) => {
                 { id: "students", icon: "👥", title: "Manage Students", desc: "View and update profiles", color: "green" },
                 { id: "alfred", icon: "🤖", title: "Ask Alfred", desc: "Get AI assistance", color: "blue" }
               ].map((action, index) => (
-                <motion.div
+                <motion.button
                   key={action.id}
+                  onClick={() => setScreen(action.id)}
+                  className="w-full p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors duration-200 text-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.2 + index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <MorphingButton
-                    onClick={() => setScreen(action.id)}
-                    variant="secondary"
-                    className="w-full h-auto p-4 flex flex-col items-center text-center space-y-2"
-                  >
-                    <AnimatedIcon icon={action.icon} size={32} animation="bounce" />
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">{action.title}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300">{action.desc}</div>
-                    </div>
-                  </MorphingButton>
-                </motion.div>
+                  <div className="text-3xl mb-2">{action.icon}</div>
+                  <div className="font-medium text-gray-900 dark:text-white text-sm mb-1">{action.title}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">{action.desc}</div>
+                </motion.button>
               ))}
             </div>
-          </InteractiveCard>
+          </div>
         </motion.div>
 
         {/* Feature Grid */}
