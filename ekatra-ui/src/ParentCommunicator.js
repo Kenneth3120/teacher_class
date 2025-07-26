@@ -64,7 +64,11 @@ const ParentCommunicator = () => {
   // Send email using Gmail API
   const sendEmailViaGmail = async () => {
     if (!newMessage.parentEmail || !newMessage.subject || !newMessage.content) {
-      alert('Please fill in all required fields.');
+      addNotification({
+        type: 'error',
+        title: 'Missing Information',
+        message: 'Please fill in all required fields before sending.'
+      });
       return;
     }
 
@@ -72,78 +76,97 @@ const ParentCommunicator = () => {
     setEmailStatus(null);
 
     try {
-      // Create the email message
-      const emailMessage = `From: teacher@ekatra-ai.com
-To: ${newMessage.parentEmail}
-Subject: ${newMessage.subject}
-
-Dear Parent,
-
-${newMessage.content}
-
-Best regards,
-${newMessage.studentName ? `${newMessage.studentName}'s Teacher` : 'Your Teacher'}
-Ekatra AI Teaching Assistant
-
----
-This message was sent via Ekatra AI Teaching Assistant.`;
-
-      // Encode the message in base64url format
-      const encodedMessage = btoa(emailMessage)
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-
-      // Send via Gmail API
-      const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.REACT_APP_GMAIL_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          raw: encodedMessage
-        })
+      addNotification({
+        type: 'info',
+        title: 'Sending Email',
+        message: 'Authenticating with Gmail...'
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Store message in Firebase for tracking
-        await addDoc(collection(db, "parent_messages"), {
-          parentEmail: newMessage.parentEmail,
-          studentName: newMessage.studentName,
-          subject: newMessage.subject,
-          content: newMessage.content,
-          priority: newMessage.priority,
-          timestamp: new Date().toISOString(),
-          gmailMessageId: result.id,
-          status: 'sent',
-          deliveryStatus: 'delivered'
-        });
+      // Prepare email variables for template
+      const emailVariables = {
+        studentName: newMessage.studentName || 'Student',
+        teacherName: "Teacher", // You might want to get this from user context
+        teacherEmail: "teacher@example.com", // You might want to get this from user context
+        customMessage: newMessage.content,
+        grade: 'N/A',
+        strengths: 'Shows consistent effort',
+        improvements: 'Continue practicing'
+      };
 
-        setEmailStatus({
-          type: 'success',
-          message: 'Email sent successfully to parent!'
-        });
+      // Use appropriate email template based on priority/type
+      const templateType = newMessage.priority === 'urgent' ? 'meeting_request' : 'general_inquiry';
+      
+      // Format email using Gmail service template
+      const formattedEmail = GmailService.formatEmail(templateType, emailVariables);
+      
+      // Send email through Gmail API with proper authentication
+      const result = await GmailService.sendEmail(
+        newMessage.parentEmail,
+        newMessage.subject || formattedEmail.subject,
+        formattedEmail.body
+      );
 
-        // Reset form
-        setNewMessage({
-          parentEmail: "",
-          studentName: "",
-          subject: "",
-          content: "",
-          priority: "normal"
-        });
-        
-        setTimeout(() => {
-          setShowCompose(false);
-          setEmailStatus(null);
-        }, 3000);
+      // Store message in Firebase for tracking
+      await addDoc(collection(db, "parent_messages"), {
+        parentEmail: newMessage.parentEmail,
+        studentName: newMessage.studentName,
+        subject: newMessage.subject || formattedEmail.subject,
+        content: newMessage.content,
+        priority: newMessage.priority,
+        timestamp: new Date().toISOString(),
+        gmailMessageId: result.id,
+        status: 'sent',
+        deliveryStatus: 'delivered'
+      });
 
-      } else {
-        throw new Error(`Gmail API error: ${response.status}`);
-      }
+      addNotification({
+        type: 'success',
+        title: 'Email Sent Successfully',
+        message: `Email sent to ${newMessage.studentName}'s parent at ${newMessage.parentEmail}`,
+        duration: 5000
+      });
+
+      setEmailStatus({
+        type: 'success',
+        message: 'Email sent successfully to parent!'
+      });
+
+      // Reset form
+      setNewMessage({
+        parentEmail: "",
+        studentName: "",
+        subject: "",
+        content: "",
+        priority: "normal"
+      });
+      
+      setTimeout(() => {
+        setShowCompose(false);
+        setEmailStatus(null);
+      }, 3000);
+
+    } catch (error) {
+      console.error("Error sending email:", error);
+      
+      addNotification({
+        type: 'error',
+        title: 'Email Send Failed',
+        message: error.message.includes('authentication') 
+          ? 'Please sign in to Gmail and grant necessary permissions.'
+          : 'Failed to send email. Please try again.',
+        duration: 7000
+      });
+      
+      setEmailStatus({
+        type: 'error',
+        message: error.message.includes('authentication') 
+          ? 'Authentication failed. Please check your Gmail permissions.'
+          : 'Failed to send email. Please try again.'
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
       
     } catch (error) {
       console.error("Error sending email:", error);
