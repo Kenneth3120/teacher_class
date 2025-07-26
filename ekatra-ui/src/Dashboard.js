@@ -192,14 +192,15 @@ const Dashboard = ({ user }) => {
         const studentsData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setStudents(studentsData);
         
-        // Welcome notification
-        if (studentsData.length > 0) {
+        // Only show welcome notification once per session
+        if (studentsData.length > 0 && !sessionStorage.getItem('welcomeShown')) {
           addNotification({
             type: 'info',
-            title: 'Welcome back!',
-            message: `You have ${studentsData.length} students in your classes.`,
-            duration: 4000
+            title: 'Dashboard loaded',
+            message: `Managing ${studentsData.length} students.`,
+            duration: 3000
           });
+          sessionStorage.setItem('welcomeShown', 'true');
         }
       } catch (error) {
         console.error("Error fetching students:", error);
