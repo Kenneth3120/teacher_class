@@ -81,6 +81,11 @@ const Alfred = () => {
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
           Your intelligent teaching companion for instant help and guidance
+          {showVoiceInterface && (
+            <span className="ml-2 text-sm text-green-600 dark:text-green-400 font-medium">
+              🎤 Voice Mode Active
+            </span>
+          )}
         </p>
       </motion.div>
 
