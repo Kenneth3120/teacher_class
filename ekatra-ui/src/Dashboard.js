@@ -290,46 +290,118 @@ const Dashboard = ({ user }) => {
   ];
 
   const renderNavBar = () => (
-    <header className="bg-white/80 backdrop-blur-sm shadow-soft sticky top-0 z-50 border-b border-gray-100">
+    <motion.header 
+      className="glass sticky top-0 z-50 border-b border-white/20 dark:border-gray-700/20"
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
       <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-medium">
-              <span className="text-white font-bold text-lg">E</span>
-            </div>
+          <motion.div 
+            className="flex items-center space-x-3"
+            whileHover={{ scale: 1.05 }}
+          >
+            <motion.div 
+              className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-glow"
+              animate={{
+                boxShadow: [
+                  "0 0 20px rgba(59, 130, 246, 0.3)",
+                  "0 0 30px rgba(139, 92, 246, 0.4)",
+                  "0 0 20px rgba(59, 130, 246, 0.3)"
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <AnimatedIcon
+                icon="E"
+                size={20}
+                animation="glow"
+                color="white"
+              />
+            </motion.div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                Welcome back, {user?.displayName?.split(' ')[0] || "Teacher"}! 👋
-              </h1>
-              <p className="text-sm text-gray-600">Ready to inspire minds today?</p>
+              <motion.h1 
+                className="text-xl font-bold gradient-text"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                Welcome back, {user?.displayName?.split(' ')[0] || "Teacher"}! 
+                <AnimatedIcon icon="👋" size={20} animation="bounce" />
+              </motion.h1>
+              <motion.p 
+                className="text-sm text-gray-600 dark:text-gray-300"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                Ready to inspire minds today?
+              </motion.p>
             </div>
-          </div>
+          </motion.div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="hidden md:flex items-center space-x-2 bg-gray-50 rounded-xl px-3 py-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">All systems operational</span>
-          </div>
+          {/* System Status */}
+          <motion.div 
+            className="hidden md:flex items-center space-x-2 glass rounded-xl px-3 py-2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <motion.div 
+              className="w-2 h-2 bg-green-500 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span className="text-sm text-gray-600 dark:text-gray-300">All systems operational</span>
+          </motion.div>
           
-          <button 
+          {/* Theme Toggle */}
+          <motion.button
+            onClick={toggleTheme}
+            className="p-2 glass rounded-xl hover:bg-white/10 dark:hover:bg-black/10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            initial={{ opacity: 0, rotate: -180 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <AnimatedIcon
+              icon={theme === 'dark' ? '☀️' : '🌙'}
+              size={20}
+              animation="rotate"
+            />
+          </motion.button>
+          
+          {/* Profile */}
+          <motion.button 
             onClick={() => setScreen("settings")}
-            className="flex items-center space-x-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl px-4 py-2 transition-all duration-200 group"
+            className="flex items-center space-x-2 glass rounded-xl px-4 py-2 hover:bg-white/10 dark:hover:bg-black/10 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1 }}
           >
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm shadow-medium">
               {user?.displayName?.charAt(0) || "U"}
             </div>
             <div className="hidden md:block text-left">
-              <div className="text-sm font-medium text-gray-900">{user?.displayName || "User"}</div>
-              <div className="text-xs text-gray-500">Teacher</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-white">{user?.displayName || "User"}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Teacher</div>
             </div>
-            <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+            >
+              <AnimatedIcon icon="⚙️" size={16} animation="rotate" />
+            </motion.div>
+          </motion.button>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 
   const renderHome = () => {
