@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import SignIn from "./SignIn";
 import Dashboard from "./Dashboard";
 import { ThemeProvider } from "./components/ThemeContext";
+import { NotificationProvider } from "./components/NotificationSystem";
 import ParticleBackground from "./components/ParticleBackground";
 import FloatingElements from "./components/FloatingElements";
 import "./i18n"; // Initialize i18n
