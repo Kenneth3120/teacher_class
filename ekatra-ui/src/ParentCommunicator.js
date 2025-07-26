@@ -11,7 +11,8 @@ const ParentCommunicator = () => {
     {
       id: 1,
       parentName: "Sarah Johnson",
-      studentName: "Emma Johnson",
+      studentName: "Emma Johnson", 
+      parentEmail: "sarah.johnson@email.com",
       message: "How is Emma doing in Math this week?",
       timestamp: "2 hours ago",
       status: "unread",
@@ -21,6 +22,7 @@ const ParentCommunicator = () => {
       id: 2,
       parentName: "Mike Chen",
       studentName: "Alex Chen",
+      parentEmail: "mike.chen@email.com", 
       message: "Thank you for the progress report. Alex has improved significantly!",
       timestamp: "1 day ago",
       status: "read",
@@ -28,21 +30,127 @@ const ParentCommunicator = () => {
     }
   ]);
   
+  const [students, setStudents] = useState([]);
   const [newMessage, setNewMessage] = useState({
-    recipient: "",
+    parentEmail: "",
+    studentName: "",
     subject: "",
-    content: ""
+    content: "",
+    priority: "normal"
   });
   
   const [showCompose, setShowCompose] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null);
 
-  const sendMessage = () => {
-    if (!newMessage.recipient || !newMessage.content) return;
-    
-    // In a real app, this would send the message
-    console.log("Sending message:", newMessage);
-    setNewMessage({ recipient: "", subject: "", content: "" });
-    setShowCompose(false);
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const studentsCollectionRef = collection(db, "students");
+      const data = await getDocs(studentsCollectionRef);
+      const studentsData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setStudents(studentsData);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+
+  // Send email using Gmail API
+  const sendEmailViaGmail = async () => {
+    if (!newMessage.parentEmail || !newMessage.subject || !newMessage.content) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    setSendingEmail(true);
+    setEmailStatus(null);
+
+    try {
+      // Create the email message
+      const emailMessage = `From: teacher@ekatra-ai.com
+To: ${newMessage.parentEmail}
+Subject: ${newMessage.subject}
+
+Dear Parent,
+
+${newMessage.content}
+
+Best regards,
+${newMessage.studentName ? `${newMessage.studentName}'s Teacher` : 'Your Teacher'}
+Ekatra AI Teaching Assistant
+
+---
+This message was sent via Ekatra AI Teaching Assistant.`;
+
+      // Encode the message in base64url format
+      const encodedMessage = btoa(emailMessage)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      // Send via Gmail API
+      const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.REACT_APP_GMAIL_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          raw: encodedMessage
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Store message in Firebase for tracking
+        await addDoc(collection(db, "parent_messages"), {
+          parentEmail: newMessage.parentEmail,
+          studentName: newMessage.studentName,
+          subject: newMessage.subject,
+          content: newMessage.content,
+          priority: newMessage.priority,
+          timestamp: new Date().toISOString(),
+          gmailMessageId: result.id,
+          status: 'sent',
+          deliveryStatus: 'delivered'
+        });
+
+        setEmailStatus({
+          type: 'success',
+          message: 'Email sent successfully to parent!'
+        });
+
+        // Reset form
+        setNewMessage({
+          parentEmail: "",
+          studentName: "",
+          subject: "",
+          content: "",
+          priority: "normal"
+        });
+        
+        setTimeout(() => {
+          setShowCompose(false);
+          setEmailStatus(null);
+        }, 3000);
+
+      } else {
+        throw new Error(`Gmail API error: ${response.status}`);
+      }
+      
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setEmailStatus({
+        type: 'error',
+        message: `Failed to send email: ${error.message}. This feature requires OAuth authentication.`
+      });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   const markAsRead = (messageId) => {
