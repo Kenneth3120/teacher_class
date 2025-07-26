@@ -13,6 +13,146 @@ const QuizGenerator = () => {
   const [quiz, setQuiz] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [creatingForm, setCreatingForm] = useState(false);
+  const [formUrl, setFormUrl] = useState(null);
+  const [quizData, setQuizData] = useState(null);
+
+  // Parse quiz content to extract questions and options
+  const parseQuizContent = (content) => {
+    const questions = [];
+    const lines = content.split('\n');
+    let currentQuestion = null;
+    
+    for (let line of lines) {
+      line = line.trim();
+      
+      // Check for question header (## Question 1, ## Question 2, etc.)
+      if (line.match(/^##\s*Question\s*\d+/i)) {
+        if (currentQuestion) {
+          questions.push(currentQuestion);
+        }
+        currentQuestion = {
+          title: line.replace(/^##\s*/i, ''),
+          options: [],
+          correctAnswer: null
+        };
+      }
+      // Check for question content
+      else if (currentQuestion && line && !line.match(/^[A-D]\)|Answer:|Correct Answer:|Explanation:/i) && currentQuestion.options.length === 0) {
+        currentQuestion.title += ' ' + line;
+      }
+      // Check for options (A), B), C), D))
+      else if (currentQuestion && line.match(/^[A-D]\)/i)) {
+        currentQuestion.options.push(line.substring(2).trim());
+      }
+      // Check for correct answer
+      else if (currentQuestion && line.match(/^(Answer|Correct Answer):\s*[A-D]/i)) {
+        const match = line.match(/[A-D]/i);
+        if (match) {
+          const answerLetter = match[0].toUpperCase();
+          const answerIndex = answerLetter.charCodeAt(0) - 'A'.charCodeAt(0);
+          currentQuestion.correctAnswer = answerIndex;
+        }
+      }
+    }
+    
+    if (currentQuestion) {
+      questions.push(currentQuestion);
+    }
+    
+    return questions;
+  };
+
+  // Create Google Form using the Forms API
+  const createGoogleForm = async () => {
+    if (!quiz || !quizData || quizData.length === 0) {
+      alert('Please generate a quiz first before creating a Google Form.');
+      return;
+    }
+
+    setCreatingForm(true);
+    setError(null);
+
+    try {
+      // First, create the form
+      const createFormResponse = await fetch('https://forms.googleapis.com/v1/forms', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.REACT_APP_GOOGLE_FORMS_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          info: {
+            title: `${topic} Quiz - Grade ${grade}`,
+            description: `This quiz contains ${numQuestions} multiple choice questions about ${topic}. Please select the best answer for each question.`
+          }
+        })
+      });
+
+      if (!createFormResponse.ok) {
+        throw new Error(`Failed to create form: ${createFormResponse.status}`);
+      }
+
+      const formData = await createFormResponse.json();
+      const formId = formData.formId;
+
+      // Add questions to the form
+      const batchRequests = [];
+      
+      quizData.forEach((question, index) => {
+        if (question.options.length > 0) {
+          batchRequests.push({
+            createItem: {
+              item: {
+                title: question.title.replace(/^Question\s*\d+:?\s*/i, '').trim(),
+                questionItem: {
+                  question: {
+                    required: true,
+                    choiceQuestion: {
+                      type: 'RADIO',
+                      options: question.options.map(option => ({
+                        value: option
+                      }))
+                    }
+                  }
+                }
+              },
+              location: {
+                index: index
+              }
+            }
+          });
+        }
+      });
+
+      if (batchRequests.length > 0) {
+        const batchUpdateResponse = await fetch(`https://forms.googleapis.com/v1/forms/${formId}:batchUpdate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.REACT_APP_GOOGLE_FORMS_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            requests: batchRequests
+          })
+        });
+
+        if (!batchUpdateResponse.ok) {
+          throw new Error(`Failed to add questions to form: ${batchUpdateResponse.status}`);
+        }
+      }
+
+      // Set the form URL
+      const generatedFormUrl = `https://docs.google.com/forms/d/${formId}/edit`;
+      setFormUrl(generatedFormUrl);
+      
+    } catch (err) {
+      console.error("Error creating Google Form:", err);
+      setError(`Failed to create Google Form: ${err.message}. This feature requires proper OAuth authentication.`);
+    } finally {
+      setCreatingForm(false);
+    }
+  };
 
   const generateQuiz = async (e) => {
     e.preventDefault();
