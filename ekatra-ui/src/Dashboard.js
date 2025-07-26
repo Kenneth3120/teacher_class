@@ -87,28 +87,94 @@ const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats 
   );
 };
 
-// Stats Card Component
-const StatsCard = ({ title, value, subtitle, icon, trend }) => (
-  <div className="bg-white rounded-2xl shadow-soft hover:shadow-medium transition-all duration-300 p-6 border border-gray-100">
-    <div className="flex items-center justify-between mb-4">
-      <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-        <div className="text-blue-600 text-xl">{icon}</div>
-      </div>
-      {trend && (
-        <div className={`flex items-center text-sm ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-          <svg className={`w-4 h-4 mr-1 ${trend > 0 ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l10-10M17 7v10H7" />
-          </svg>
-          {Math.abs(trend)}%
+// Enhanced Stats Card Component with animations
+const StatsCard = ({ title, value, subtitle, icon, trend }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      whileHover={{ y: -5, scale: 1.02 }}
+    >
+      <InteractiveCard className="p-6" glowColor="blue">
+        <div className="flex items-center justify-between mb-4">
+          <motion.div 
+            className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl"
+            whileHover={{ rotate: 5, scale: 1.1 }}
+          >
+            <AnimatedIcon
+              icon={icon}
+              size={20}
+              animation="bounce"
+              color="#3b82f6"
+            />
+          </motion.div>
+          {trend && (
+            <motion.div 
+              className={`flex items-center text-sm ${trend > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <motion.div
+                animate={{ y: trend > 0 ? [0, -2, 0] : [0, 2, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <AnimatedIcon 
+                  icon={trend > 0 ? "📈" : "📉"} 
+                  size={16} 
+                  animation="float" 
+                />
+              </motion.div>
+              <span className="ml-1">
+                <AnimatedCounter end={Math.abs(trend)} suffix="%" />
+              </span>
+            </motion.div>
+          )}
         </div>
-      )}
-    </div>
-    <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
-    <p className="text-gray-600 font-medium">{title}</p>
-    {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
-    }
-  </div>
-);
+        
+        <motion.h3 
+          className="text-2xl font-bold text-gray-900 dark:text-white mb-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {typeof value === 'number' ? (
+            <AnimatedCounter end={value} />
+          ) : (
+            value
+          )}
+        </motion.h3>
+        
+        <motion.p 
+          className="text-gray-600 dark:text-gray-300 font-medium"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          {title}
+        </motion.p>
+        
+        {subtitle && (
+          <motion.p 
+            className="text-sm text-gray-500 dark:text-gray-400 mt-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            {subtitle}
+          </motion.p>
+        )}
+      </InteractiveCard>
+    </motion.div>
+  );
+};
 
 const Dashboard = ({ user }) => {
   const [screen, setScreen] = useState("home");
