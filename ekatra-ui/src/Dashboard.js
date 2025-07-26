@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { db } from "./firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useTheme } from "./components/ThemeContext";
+import { NotificationBell, useNotifications } from "./components/NotificationSystem";
 import Settings from "./Settings";
 import LessonPlan from "./LessonPlan";
 import QuizGenerator from "./QuizGenerator";
