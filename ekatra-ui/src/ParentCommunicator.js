@@ -241,7 +241,7 @@ This message was sent via Ekatra AI Teaching Assistant.`;
               
               <div className="flex gap-3 mt-4">
                 <MorphingButton
-                  onClick={sendMessage}
+                  onClick={sendEmailViaGmail}
                   variant="success"
                 >
                   <AnimatedIcon icon="📤" animation="bounce" size={16} />
