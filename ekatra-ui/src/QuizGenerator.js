@@ -164,20 +164,38 @@ const QuizGenerator = () => {
     setIsLoading(true);
     setError(null);
     setQuiz(null);
+    setFormUrl(null);
 
     try {
       const prompt = `Create a quiz with ${numQuestions} multiple-choice questions for a grade ${grade} class on the topic of "${topic}". 
 
-Format your response using markdown with the following structure:
-- Use proper headers for each question (## Question 1, ## Question 2, etc.)
-- List the 4 answer options (A, B, C, D) as bullet points
-- Clearly indicate the correct answer at the end of each question
-- Include a brief explanation for each correct answer
+IMPORTANT: Format your response using this EXACT structure:
 
-Make sure the questions are age-appropriate and educational.`;
+## Question 1: [Question text here]
+A) [Option A]
+B) [Option B] 
+C) [Option C]
+D) [Option D]
+Correct Answer: A
+Explanation: [Brief explanation]
+
+## Question 2: [Question text here]
+A) [Option A]
+B) [Option B]
+C) [Option C] 
+D) [Option D]
+Correct Answer: B
+Explanation: [Brief explanation]
+
+Continue this pattern for all ${numQuestions} questions. Make sure each question has exactly 4 options (A, B, C, D) and clearly indicate the correct answer.`;
 
       const result = await getGenerativeContent(prompt);
       setQuiz(result);
+      
+      // Parse the quiz content to extract structured data
+      const parsedQuizData = parseQuizContent(result);
+      setQuizData(parsedQuizData);
+      
     } catch (err) {
       console.error("Error generating quiz:", err);
       setError("Failed to generate the quiz. Please try again.");
