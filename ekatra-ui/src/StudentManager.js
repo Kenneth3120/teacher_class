@@ -140,13 +140,13 @@ const StudentManager = () => {
       // Extract the sheet ID from the URL
       const sheetId = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
       if (!sheetId) {
-        alert('Invalid Google Sheets URL. Please provide a valid URL.');
+        alert('Invalid Google Sheets URL. Please provide a valid URL.\n\nExample: https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit');
         return;
       }
 
       const apiKey = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
       if (!apiKey) {
-        alert('Google Sheets API key is not configured. Please check your environment variables.');
+        alert('Google Sheets API key is not configured. Please contact the administrator to set up the API key.');
         return;
       }
       
@@ -163,7 +163,32 @@ const StudentManager = () => {
       if (!response.ok) {
         console.error('Google Sheets API Error:', data);
         if (data.error) {
-          alert(`Google Sheets API Error: ${data.error.message}\n\nPossible solutions:\n1. Make sure the sheet is publicly accessible\n2. Check if the API key has Google Sheets API enabled\n3. Verify the sheet URL is correct`);
+          let errorMessage = `Google Sheets API Error: ${data.error.message}\n\n`;
+          
+          if (data.error.code === 403) {
+            errorMessage += `❌ API Access Issue:\n`;
+            errorMessage += `The Google Sheets API is not enabled for this project.\n\n`;
+            errorMessage += `📋 To fix this:\n`;
+            errorMessage += `1. Go to Google Cloud Console\n`;
+            errorMessage += `2. Navigate to APIs & Services > Library\n`;
+            errorMessage += `3. Search for "Google Sheets API"\n`;
+            errorMessage += `4. Click "Enable" for your project\n\n`;
+            errorMessage += `🔄 Alternative: Make your Google Sheet publicly accessible (Anyone with the link can view)\n`;
+            errorMessage += `Then try the import again.`;
+          } else if (data.error.code === 400) {
+            errorMessage += `❌ Bad Request:\n`;
+            errorMessage += `Please check:\n`;
+            errorMessage += `1. The sheet URL is correct\n`;
+            errorMessage += `2. The sheet exists and has data\n`;
+            errorMessage += `3. The range 'Sheet1!A:H' is valid`;
+          } else {
+            errorMessage += `Possible solutions:\n`;
+            errorMessage += `1. Make sure the sheet is publicly accessible\n`;
+            errorMessage += `2. Check if the API key has Google Sheets API enabled\n`;
+            errorMessage += `3. Verify the sheet URL is correct`;
+          }
+          
+          alert(errorMessage);
         } else {
           alert(`Failed to access Google Sheets. Status: ${response.status}\n\nPlease ensure:\n1. The sheet is shared publicly (Anyone with the link can view)\n2. The Google Sheets API is enabled for this project`);
         }
@@ -171,7 +196,7 @@ const StudentManager = () => {
       }
       
       if (!data.values || data.values.length === 0) {
-        alert('No data found in the sheet.\n\nPlease ensure:\n1. The sheet contains data\n2. The sheet is not empty\n3. Data is in the expected range (Sheet1!A:H)');
+        alert('No data found in the sheet.\n\nPlease ensure:\n1. The sheet contains data\n2. The sheet is not empty\n3. Data is in the expected range (Sheet1!A:H)\n4. The first row contains headers: Name, Grade, Email, Subjects, etc.');
         return;
       }
 
