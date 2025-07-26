@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import Particles from "react-particles";
-import { loadSlim } from "tsparticles-slim";
+import { loadSlim } from "@tsparticles/slim";
 
 const ParticleBackground = ({ theme = "light", type = "floating" }) => {
   const particlesInit = useCallback(async engine => {
