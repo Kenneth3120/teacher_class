@@ -180,6 +180,7 @@ const Dashboard = ({ user }) => {
   const [screen, setScreen] = useState("home");
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -269,6 +270,14 @@ const Dashboard = ({ user }) => {
       description: "Translate content and communicate in multiple languages.",
       color: "cyan",
       component: <Translator />,
+    },
+    {
+      id: "ask-agent",
+      icon: "🤔",
+      title: "Ask Agent",
+      description: "Get instant answers to your teaching questions from AI.",
+      color: "red",
+      component: <AskAgent />,
     },
     {
       id: "settings",
