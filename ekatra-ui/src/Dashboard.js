@@ -182,21 +182,39 @@ const Dashboard = ({ user }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const { theme, toggleTheme } = useTheme();
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const studentsCollectionRef = collection(db, "students");
         const data = await getDocs(studentsCollectionRef);
-        setStudents(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        const studentsData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        setStudents(studentsData);
+        
+        // Welcome notification
+        if (studentsData.length > 0) {
+          addNotification({
+            type: 'info',
+            title: 'Welcome back!',
+            message: `You have ${studentsData.length} students in your classes.`,
+            duration: 4000
+          });
+        }
       } catch (error) {
         console.error("Error fetching students:", error);
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load student data.',
+          duration: 5000
+        });
       } finally {
         setLoading(false);
       }
     };
     fetchStudents();
-  }, []);
+  }, [addNotification]);
 
   const features = [
     {
