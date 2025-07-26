@@ -62,6 +62,22 @@ const Alfred = () => {
         <h2 className="text-3xl font-bold gradient-text mb-2 flex items-center gap-3">
           <AnimatedIcon icon="🤖" animation="float" size={32} />
           Alfred AI Assistant
+          <motion.button
+            onClick={() => setShowVoiceInterface(!showVoiceInterface)}
+            className={`ml-auto p-2 rounded-xl text-sm ${
+              showVoiceInterface 
+                ? 'bg-green-500 text-white' 
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <AnimatedIcon 
+              icon={showVoiceInterface ? "🎤" : "🔊"} 
+              size={16} 
+              animation={showVoiceInterface ? "pulse" : "float"}
+            />
+          </motion.button>
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
           Your intelligent teaching companion for instant help and guidance
