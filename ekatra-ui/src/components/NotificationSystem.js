@@ -24,7 +24,8 @@ export const NotificationProvider = ({ children }) => {
       type: 'info', // 'success', 'error', 'warning', 'info'
       title: '',
       message: '',
-      duration: 5000, // Default 5 seconds
+      duration: 5000, // Default 5 seconds, 0 for persistent
+      persistent: false, // Whether to store in persistent storage
       ...notification
     };
 
@@ -33,10 +34,20 @@ export const NotificationProvider = ({ children }) => {
       const isDuplicate = prev.some(n => n.message === newNotification.message && n.title === newNotification.title);
       if (isDuplicate) return prev;
       
-      // Keep only last 5 notifications
+      // Keep only last 10 notifications
       const updatedNotifications = [...prev, newNotification];
-      return updatedNotifications.slice(-5);
+      return updatedNotifications.slice(-10);
     });
+
+    // Store persistent notifications in localStorage
+    if (newNotification.persistent || newNotification.duration === 0) {
+      const persistentNotifications = JSON.parse(localStorage.getItem('ekatra_notifications') || '[]');
+      persistentNotifications.push({
+        ...newNotification,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem('ekatra_notifications', JSON.stringify(persistentNotifications.slice(-50))); // Keep last 50
+    }
 
     // Auto remove after duration (only if duration > 0)
     if (newNotification.duration > 0) {
