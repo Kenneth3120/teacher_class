@@ -293,17 +293,19 @@ export const NotificationBell = () => {
             </div>
 
             <div className="max-h-96 overflow-y-auto">
-              {notifications.length === 0 ? (
+              {allNotifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                   <AnimatedIcon icon="📭" size={48} animation="float" />
                   <p className="mt-2">No notifications</p>
                 </div>
               ) : (
                 <div className="p-2 space-y-2">
-                  {notifications.slice(0, 5).map((notification) => (
+                  {allNotifications.slice(0, 10).map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
+                      className={`p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer ${
+                        notification.isPersistent ? 'border-l-4 border-blue-500' : ''
+                      }`}
                     >
                       <div className="flex items-start gap-3">
                         <AnimatedIcon 
@@ -321,6 +323,11 @@ export const NotificationBell = () => {
                           <p className="text-sm text-gray-600 dark:text-gray-300">
                             {notification.message}
                           </p>
+                          {notification.isPersistent && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(notification.timestamp).toLocaleString()}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
