@@ -172,33 +172,35 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <div className="relative min-h-screen overflow-hidden">
-        <AnimatePresence mode="wait">
-          {user ? (
-            <motion.div
-              key="dashboard"
-              variants={pageVariants}
-              initial="initial"
-              animate="enter"
-              exit="exit"
-              className="relative z-10"
-            >
-              <Dashboard user={user} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="signin"
-              variants={pageVariants}
-              initial="initial"
-              animate="enter"
-              exit="exit"
-              className="relative z-10"
-            >
-              <SignIn />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <NotificationProvider>
+        <div className="relative min-h-screen overflow-hidden">
+          <AnimatePresence mode="wait">
+            {user ? (
+              <motion.div
+                key="dashboard"
+                variants={pageVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+                className="relative z-10"
+              >
+                <Dashboard user={user} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="signin"
+                variants={pageVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+                className="relative z-10"
+              >
+                <SignIn />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </NotificationProvider>
     </ThemeProvider>
   );
 }
