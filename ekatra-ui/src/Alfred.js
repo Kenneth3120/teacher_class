@@ -4,6 +4,7 @@ import { getGenerativeContent } from "./gemini";
 import InteractiveCard from "./components/InteractiveCard";
 import MorphingButton from "./components/MorphingButton";
 import AnimatedIcon from "./components/AnimatedIcon";
+import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const Alfred = () => {
   const [messages, setMessages] = useState([]);
