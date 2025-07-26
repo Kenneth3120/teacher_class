@@ -19,15 +19,15 @@ const Integrations = () => {
     },
     {
       id: 2,
-      name: "Microsoft Teams",
-      description: "Integrate with Teams for virtual classrooms",
-      icon: "💻",
+      name: "Google Classroom",
+      description: "Sync students and assignments from Google Classroom",
+      icon: "🎓",
       status: "available",
-      color: "purple"
+      color: "green"
     },
     {
       id: 3,
-      name: "Zoom",
+      name: "Google Meet",
       description: "Schedule and manage video conferences",
       icon: "🎥",
       status: "available",
@@ -35,6 +35,22 @@ const Integrations = () => {
     },
     {
       id: 4,
+      name: "Microsoft Teams",
+      description: "Integrate with Teams for virtual classrooms",
+      icon: "💻",
+      status: "available",
+      color: "purple"
+    },
+    {
+      id: 5,
+      name: "Zoom",
+      description: "Schedule and manage video conferences",
+      icon: "🎥",
+      status: "available",
+      color: "indigo"
+    },
+    {
+      id: 6,
       name: "Slack",
       description: "Communication with staff and administrators",
       icon: "💬",
@@ -42,7 +58,7 @@ const Integrations = () => {
       color: "green"
     },
     {
-      id: 5,
+      id: 7,
       name: "Canvas LMS",
       description: "Sync with your learning management system",
       icon: "🎓",
@@ -50,7 +66,7 @@ const Integrations = () => {
       color: "amber"
     },
     {
-      id: 6,
+      id: 8,
       name: "Khan Academy",
       description: "Access educational resources and exercises",
       icon: "📚",
@@ -58,10 +74,117 @@ const Integrations = () => {
       color: "teal"
     }
   ]);
+  
+  const [classroomData, setClassroomData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { addNotification } = useNotifications();
 
-  const toggleIntegration = (integrationId) => {
-    // In a real app, this would handle the actual integration
-    console.log("Toggling integration:", integrationId);
+  const toggleIntegration = async (integrationId) => {
+    const integration = integrations.find(int => int.id === integrationId);
+    
+    if (integration.name === "Google Classroom") {
+      await connectGoogleClassroom();
+    } else if (integration.name === "Google Meet") {
+      await testGoogleMeet();
+    } else {
+      // For other integrations, just show a placeholder
+      addNotification({
+        type: 'info',
+        title: 'Coming Soon',
+        message: `${integration.name} integration is coming soon!`
+      });
+    }
+  };
+
+  const connectGoogleClassroom = async () => {
+    setIsLoading(true);
+    try {
+      addNotification({
+        type: 'info',
+        title: 'Connecting to Google Classroom',
+        message: 'Fetching your courses...'
+      });
+
+      const courses = await GoogleClassroomService.getCourses();
+      
+      if (courses.courses && courses.courses.length > 0) {
+        const firstCourse = courses.courses[0];
+        const students = await GoogleClassroomService.syncStudentsFromClassroom(firstCourse.id);
+        
+        setClassroomData({
+          courses: courses.courses,
+          students: students,
+          connectedAt: new Date().toISOString()
+        });
+
+        addNotification({
+          type: 'success',
+          title: 'Google Classroom Connected',
+          message: `Successfully connected to ${courses.courses.length} course(s) and synced ${students.length} student(s)`
+        });
+      } else {
+        addNotification({
+          type: 'warning',
+          title: 'No Courses Found',
+          message: 'No active courses found in your Google Classroom account'
+        });
+      }
+    } catch (error) {
+      console.error('Error connecting to Google Classroom:', error);
+      addNotification({
+        type: 'error',
+        title: 'Connection Failed',
+        message: error.message.includes('authentication') 
+          ? 'Please sign in to Google and grant necessary permissions.'
+          : 'Failed to connect to Google Classroom. Please try again.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const testGoogleMeet = async () => {
+    setIsLoading(true);
+    try {
+      addNotification({
+        type: 'info',
+        title: 'Testing Google Meet',
+        message: 'Creating a test meeting...'
+      });
+
+      const meetingDetails = {
+        title: 'Test Meeting - Ekatra AI',
+        description: 'This is a test meeting created by Ekatra AI',
+        startTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour from now
+        endTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
+        attendees: []
+      };
+
+      const meeting = await GoogleMeetService.createMeeting(meetingDetails);
+      const meetLink = GoogleMeetService.extractMeetLink(meeting);
+
+      addNotification({
+        type: 'success',
+        title: 'Google Meet Connected',
+        message: `Test meeting created successfully! ${meetLink ? 'Meet link generated.' : ''}`,
+        duration: 7000
+      });
+      
+      if (meetLink) {
+        console.log('Meet Link:', meetLink);
+      }
+    } catch (error) {
+      console.error('Error testing Google Meet:', error);
+      addNotification({
+        type: 'error',
+        title: 'Connection Failed',
+        message: error.message.includes('authentication') 
+          ? 'Please sign in to Google and grant calendar permissions.'
+          : 'Failed to connect to Google Meet. Please try again.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
