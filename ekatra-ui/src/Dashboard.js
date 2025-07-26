@@ -377,6 +377,9 @@ const Dashboard = ({ user }) => {
             <span className="text-sm text-gray-600 dark:text-gray-300">All systems operational</span>
           </motion.div>
           
+          {/* Notification Bell */}
+          <NotificationBell />
+          
           {/* Theme Toggle */}
           <motion.button
             onClick={toggleTheme}
