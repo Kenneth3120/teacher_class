@@ -168,12 +168,7 @@ const ParentCommunicator = () => {
     }
   };
       
-    } catch (error) {
-      console.error("Error sending email:", error);
-      setEmailStatus({
-        type: 'error',
-        message: `Failed to send email: ${error.message}. This feature requires OAuth authentication.`
-      });
+   
     } finally {
       setSendingEmail(false);
     }
