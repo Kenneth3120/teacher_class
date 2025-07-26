@@ -33,7 +33,18 @@ const VoiceInterface = ({ onTranscriptionComplete, onSpeakResponse, isListening:
       
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
+      recognitionRef.current.maxAlternatives = 1;
       recognitionRef.current.lang = selectedLanguage;
+
+      // Add these properties to improve recognition
+      if (recognitionRef.current.grammars) {
+        recognitionRef.current.grammars.addFromString('#JSGF V1.0;', 1);
+      }
+      
+      // Set audio settings if available
+      if (recognitionRef.current.audioTrack) {
+        recognitionRef.current.audioTrack.enabled = true;
+      }
 
       recognitionRef.current.onstart = () => {
         setIsListening(true);
