@@ -16,6 +16,7 @@ import Integrations from "./Integrations";
 import Translator from "./Translator";
 import AskAgent from "./AskAgent";
 import VisualContentGenerator from "./VisualContentGenerator";
+import TimetableManager from "./TimetableManager";
 import ParticleBackground from "./components/ParticleBackground";
 import FloatingElements from "./components/FloatingElements";
 import InteractiveCard from "./components/InteractiveCard";
