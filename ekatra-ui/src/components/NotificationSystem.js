@@ -291,4 +291,4 @@ export const NotificationBell = () => {
   );
 };
 
-export default NotificationSystem;
+export default { NotificationProvider, NotificationBell, useNotifications };
