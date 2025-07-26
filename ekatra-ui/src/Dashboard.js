@@ -409,35 +409,83 @@ const Dashboard = ({ user }) => {
       ? (students.reduce((acc, s) => acc + (parseInt(s.rating) || 0), 0) / students.length).toFixed(1)
       : "0.0";
 
-    return (
-      <div className="space-y-8 fade-in">
-        {/* Welcome Section */}
-        <div className="text-center py-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Teaching Dashboard</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Streamline your teaching workflow with AI-powered tools designed for modern educators.
-          </p>
+    if (loading) {
+      return (
+        <div className="space-y-8">
+          <div className="text-center py-8">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <LoadingSkeleton type="stats" count={4} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <LoadingSkeleton type="card" count={6} />
+          </div>
         </div>
+      );
+    }
+
+    return (
+      <motion.div 
+        className="space-y-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Welcome Section */}
+        <motion.div 
+          className="text-center py-8 relative"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {/* Background floating elements */}
+          <FloatingElements theme={theme} />
+          
+          <motion.h2 
+            className="text-4xl font-bold gradient-text mb-4"
+            animate={{ 
+              backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+            }}
+            transition={{ duration: 5, repeat: Infinity }}
+          >
+            Your Teaching Dashboard
+          </motion.h2>
+          <motion.p 
+            className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Streamline your teaching workflow with AI-powered tools designed for modern educators.
+          </motion.p>
+        </motion.div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
           <StatsCard
             title="Total Students"
-            value={loading ? "..." : students.length}
+            value={students.length}
             subtitle="Active in your classes"
             icon="👥"
             trend={5}
           />
           <StatsCard
             title="Class Average"
-            value={loading ? "..." : `${avgRating}/5`}
+            value={`${avgRating}/5`}
             subtitle="Student performance rating"
             icon="⭐"
             trend={2}
           />
           <StatsCard
             title="Lessons Created"
-            value="24"
+            value={24}
             subtitle="This month"
             icon="📚"
             trend={12}
@@ -449,71 +497,92 @@ const Dashboard = ({ user }) => {
             icon="⏱️"
             trend={8}
           />
-        </div>
+        </motion.div>
 
         {/* Quick Actions */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-100">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button 
-              onClick={() => setScreen("lesson-plan")}
-              className="flex items-center space-x-3 bg-white hover:bg-gray-50 rounded-xl p-4 transition-all duration-200 group shadow-soft hover:shadow-medium"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <InteractiveCard className="p-8" glowColor="blue">
+            <motion.h3 
+              className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1 }}
             >
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                <span className="text-purple-600">📚</span>
-              </div>
-              <div className="text-left">
-                <div className="font-medium text-gray-900">Create Lesson Plan</div>
-                <div className="text-sm text-gray-500">Generate AI-powered lessons</div>
-              </div>
-            </button>
-            
-            <button 
-              onClick={() => setScreen("students")}
-              className="flex items-center space-x-3 bg-white hover:bg-gray-50 rounded-xl p-4 transition-all duration-200 group shadow-soft hover:shadow-medium"
-            >
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <span className="text-green-600">👥</span>
-              </div>
-              <div className="text-left">
-                <div className="font-medium text-gray-900">Manage Students</div>
-                <div className="text-sm text-gray-500">View and update profiles</div>
-              </div>
-            </button>
-            
-            <button 
-              onClick={() => setScreen("alfred")}
-              className="flex items-center space-x-3 bg-white hover:bg-gray-50 rounded-xl p-4 transition-all duration-200 group shadow-soft hover:shadow-medium"
-            >
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                <span className="text-blue-600">🤖</span>
-              </div>
-              <div className="text-left">
-                <div className="font-medium text-gray-900">Ask Alfred</div>
-                <div className="text-sm text-gray-500">Get AI assistance</div>
-              </div>
-            </button>
-          </div>
-        </div>
+              <AnimatedIcon icon="⚡" animation="glow" size={28} />
+              Quick Actions
+            </motion.h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { id: "lesson-plan", icon: "📚", title: "Create Lesson Plan", desc: "Generate AI-powered lessons", color: "purple" },
+                { id: "students", icon: "👥", title: "Manage Students", desc: "View and update profiles", color: "green" },
+                { id: "alfred", icon: "🤖", title: "Ask Alfred", desc: "Get AI assistance", color: "blue" }
+              ].map((action, index) => (
+                <motion.div
+                  key={action.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 + index * 0.1 }}
+                >
+                  <MorphingButton
+                    onClick={() => setScreen(action.id)}
+                    variant="secondary"
+                    className="w-full h-auto p-4 flex flex-col items-center text-center space-y-2"
+                  >
+                    <AnimatedIcon icon={action.icon} size={32} animation="bounce" />
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">{action.title}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">{action.desc}</div>
+                    </div>
+                  </MorphingButton>
+                </motion.div>
+              ))}
+            </div>
+          </InteractiveCard>
+        </motion.div>
 
         {/* Feature Grid */}
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">All Features</h3>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1 }}
+        >
+          <motion.h3 
+            className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.2 }}
+          >
+            <AnimatedIcon icon="🚀" animation="float" size={28} />
+            All Features
+          </motion.h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature) => (
-              <FeatureCard
-                key={feature.id}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                color={feature.color}
-                stats={feature.stats}
-                onClick={() => setScreen(feature.id)}
-              />
-            ))}
+            <AnimatePresence>
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.id}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 1.4 + index * 0.05, duration: 0.5 }}
+                  layout
+                >
+                  <FeatureCard
+                    icon={feature.icon}
+                    title={feature.title}
+                    description={feature.description}
+                    color={feature.color}
+                    stats={feature.stats}
+                    onClick={() => setScreen(feature.id)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   };
 
