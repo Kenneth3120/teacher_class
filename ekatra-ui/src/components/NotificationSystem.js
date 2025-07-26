@@ -63,6 +63,21 @@ export const NotificationProvider = ({ children }) => {
 
   const clearAll = () => {
     setNotifications([]);
+    // Also clear persistent notifications
+    localStorage.removeItem('ekatra_notifications');
+  };
+
+  const loadPersistentNotifications = () => {
+    const persistentNotifications = JSON.parse(localStorage.getItem('ekatra_notifications') || '[]');
+    return persistentNotifications.map(notif => ({
+      ...notif,
+      id: Date.now() + Math.random(), // Generate new ID
+      isPersistent: true
+    }));
+  };
+
+  const clearPersistentNotifications = () => {
+    localStorage.removeItem('ekatra_notifications');
   };
 
   return (
