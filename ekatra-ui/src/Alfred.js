@@ -1,55 +1,190 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { getGenerativeContent } from "./gemini";
+import InteractiveCard from "./components/InteractiveCard";
+import MorphingButton from "./components/MorphingButton";
+import AnimatedIcon from "./components/AnimatedIcon";
 
 const Alfred = () => {
-  const [history, setHistory] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!input) return;
-
-    const userMessage = { role: "user", text: input };
-    setHistory([...history, userMessage]);
+    if (!input.trim()) return;
+    
+    const userMessage = { role: "user", content: input };
+    setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-
+    
     try {
-      const result = await getGenerativeContent(input, history);
-      const modelMessage = { role: "model", text: result };
-      setHistory([...history, userMessage, modelMessage]);
+      const response = await getGenerativeContent(
+        `You are Alfred, an AI teaching assistant. Help the teacher with their question: ${input}`
+      );
+      
+      const aiMessage = { role: "assistant", content: response };
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMessage = { role: "model", text: "Sorry, I'm having trouble connecting. Please try again." };
-      setHistory([...history, userMessage, errorMessage]);
+      console.error("Error getting AI response:", error);
+      setMessages(prev => [...prev, { 
+        role: "assistant", 
+        content: "I apologize, but I'm having trouble responding right now. Please try again." 
+      }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-2 flex flex-col h-[70vh]">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Alfred - Your AI Assistant</h2>
-      <div className="flex-grow overflow-y-auto p-4 bg-gray-100 rounded-lg">
-        {history.map((msg, index) => (
-          <div key={index} className={`my-2 p-2 rounded-lg ${msg.role === 'user' ? 'bg-blue-200 ml-auto' : 'bg-gray-200 mr-auto'}`} style={{maxWidth: '80%'}}>
-            <p style={{whiteSpace: 'pre-wrap'}}>{msg.text}</p>
+    <div className="p-6 h-full flex flex-col">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mb-6"
+      >
+        <h2 className="text-3xl font-bold gradient-text mb-2 flex items-center gap-3">
+          <AnimatedIcon icon="🤖" animation="float" size={32} />
+          Alfred AI Assistant
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300">
+          Your intelligent teaching companion for instant help and guidance
+        </p>
+      </motion.div>
+
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto space-y-4 mb-6">
+        <AnimatePresence>
+          {messages.length === 0 ? (
+            <motion.div
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <AnimatedIcon icon="💬" animation="bounce" size={64} />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-4 mb-2">
+                Hello! I'm Alfred
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Ask me anything about teaching, lesson planning, or student management!
+              </p>
+            </motion.div>
+          ) : (
+            messages.map((message, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-xs lg:max-w-md xl:max-w-lg`}>
+                  <InteractiveCard
+                    className={`p-4 ${
+                      message.role === 'user' 
+                        ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white' 
+                        : ''
+                    }`}
+                    glowColor={message.role === 'user' ? 'blue' : 'purple'}
+                    hoverable={false}
+                  >
+                    <div className="flex items-start gap-3">
+                      <AnimatedIcon
+                        icon={message.role === 'user' ? '👤' : '🤖'}
+                        animation="float"
+                        size={24}
+                        color={message.role === 'user' ? 'white' : 'currentColor'}
+                      />
+                      <div className="flex-1">
+                        <p className={`text-sm ${
+                          message.role === 'user' 
+                            ? 'text-white/90' 
+                            : 'text-gray-600 dark:text-gray-300'
+                        }`}>
+                          {message.role === 'user' ? 'You' : 'Alfred'}
+                        </p>
+                        <p className={`mt-1 ${
+                          message.role === 'user' 
+                            ? 'text-white' 
+                            : 'text-gray-900 dark:text-white'
+                        }`} style={{ whiteSpace: 'pre-wrap' }}>
+                          {message.content}
+                        </p>
+                      </div>
+                    </div>
+                  </InteractiveCard>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </AnimatePresence>
+        
+        {/* Loading indicator */}
+        {isLoading && (
+          <motion.div
+            className="flex justify-start"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <InteractiveCard className="p-4" glowColor="purple" hoverable={false}>
+              <div className="flex items-center gap-3">
+                <AnimatedIcon icon="🤖" animation="pulse" size={24} />
+                <div className="flex items-center space-x-1">
+                  <span className="text-gray-600 dark:text-gray-300">Alfred is thinking</span>
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="w-1 h-1 bg-blue-500 rounded-full"
+                      animate={{
+                        y: [0, -5, 0],
+                        opacity: [0.5, 1, 0.5],
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </InteractiveCard>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Input Area */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <InteractiveCard className="p-4" glowColor="blue">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask Alfred anything about teaching..."
+              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onKeyPress={(e) => e.key === 'Enter' && !isLoading && sendMessage()}
+              disabled={isLoading}
+            />
+            <MorphingButton
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading}
+              loading={isLoading}
+              variant="primary"
+              size="md"
+            >
+              {!isLoading && (
+                <AnimatedIcon icon="📤" animation="bounce" size={16} />
+              )}
+            </MorphingButton>
           </div>
-        ))}
-      </div>
-      <div className="mt-4 flex">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          className="flex-grow px-3 py-2 border border-gray-300 rounded-l-lg"
-          placeholder="Ask Alfred anything..."
-        />
-        <button onClick={sendMessage} disabled={isLoading} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-r-lg">
-          {isLoading ? "..." : "Send"}
-        </button>
-      </div>
+        </InteractiveCard>
+      </motion.div>
     </div>
   );
 };
