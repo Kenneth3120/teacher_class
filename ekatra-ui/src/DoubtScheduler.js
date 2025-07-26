@@ -35,6 +35,39 @@ const DoubtScheduler = () => {
     date: "",
     time: ""
   });
+  const { addNotification } = useNotifications();
+
+  // Setup meeting notifications
+  useEffect(() => {
+    const checkUpcomingMeetings = () => {
+      const now = new Date();
+      const currentTime = now.getTime();
+
+      sessions.forEach(session => {
+        if (session.status === 'scheduled') {
+          const sessionDateTime = new Date(`${session.date} ${session.time}`);
+          const timeDiff = sessionDateTime.getTime() - currentTime;
+          const minutesUntilMeeting = Math.floor(timeDiff / (1000 * 60));
+
+          // Notify 10 minutes before the meeting
+          if (minutesUntilMeeting === 10) {
+            addNotification({
+              type: 'warning',
+              title: 'Meeting Reminder',
+              message: `Meeting with ${session.studentName} at ${session.time}`,
+              duration: 0 // Persistent until cleared
+            });
+          }
+        }
+      });
+    };
+
+    // Check every minute
+    const interval = setInterval(checkUpcomingMeetings, 60000);
+    checkUpcomingMeetings(); // Check immediately
+
+    return () => clearInterval(interval);
+  }, [sessions, addNotification]);
 
   const addSession = () => {
     if (!newSession.studentName || !newSession.subject || !newSession.date || !newSession.time) {
