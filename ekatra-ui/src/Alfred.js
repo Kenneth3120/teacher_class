@@ -80,7 +80,7 @@ const Alfred = () => {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-xs lg:max-w-md xl:max-w-lg`}>
+                <div className={`w-full max-w-4xl ${message.role === 'user' ? 'ml-auto' : 'mr-auto'}`}>
                   <InteractiveCard
                     className={`p-4 ${
                       message.role === 'user' 
@@ -97,7 +97,7 @@ const Alfred = () => {
                         size={24}
                         color={message.role === 'user' ? 'white' : 'currentColor'}
                       />
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className={`text-sm ${
                           message.role === 'user' 
                             ? 'text-white/90' 
@@ -105,13 +105,22 @@ const Alfred = () => {
                         }`}>
                           {message.role === 'user' ? 'You' : 'Alfred'}
                         </p>
-                        <p className={`mt-1 ${
+                        <div className={`mt-1 ${
                           message.role === 'user' 
                             ? 'text-white' 
                             : 'text-gray-900 dark:text-white'
-                        }`} style={{ whiteSpace: 'pre-wrap' }}>
-                          {message.content}
-                        </p>
+                        }`}>
+                          {message.role === 'user' ? (
+                            <p style={{ whiteSpace: 'pre-wrap' }}>
+                              {message.content}
+                            </p>
+                          ) : (
+                            <MarkdownRenderer 
+                              content={message.content}
+                              className="prose-sm"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </InteractiveCard>
