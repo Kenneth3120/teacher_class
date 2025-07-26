@@ -266,24 +266,18 @@ a:focus {
   animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-/* Floating animation */
+/* Subtle floating animation */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-10px) rotate(1deg);
+    transform: translateY(0px);
   }
   50% {
-    transform: translateY(-5px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-15px) rotate(-1deg);
+    transform: translateY(-3px);
   }
 }
 
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Bounce animation */
