@@ -18,6 +18,7 @@ const QuizGenerator = () => {
   const [creatingForm, setCreatingForm] = useState(false);
   const [formUrl, setFormUrl] = useState(null);
   const [quizData, setQuizData] = useState(null);
+  const { addNotification } = useNotifications();
 
   // Parse quiz content to extract questions and options
   const parseQuizContent = (content) => {
