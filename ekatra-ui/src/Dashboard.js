@@ -587,15 +587,23 @@ const Dashboard = ({ user }) => {
   };
 
   const renderBackButton = () => (
-    <button
+    <motion.button
       onClick={() => setScreen("home")}
-      className="inline-flex items-center mb-6 px-4 py-2 bg-white hover:bg-gray-50 rounded-xl text-gray-700 font-medium shadow-soft hover:shadow-medium transition-all duration-200 border border-gray-200 group"
+      className="inline-flex items-center mb-6 px-6 py-3 glass rounded-2xl text-gray-700 dark:text-gray-300 font-medium shadow-soft hover:shadow-medium border border-white/20 dark:border-gray-700/20 group"
+      whileHover={{ x: -5, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
     >
-      <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-      </svg>
-      Back to Dashboard
-    </button>
+      <motion.div
+        animate={{ x: [-2, 0, -2] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <AnimatedIcon icon="←" size={20} animation="bounce" />
+      </motion.div>
+      <span className="ml-2">Back to Dashboard</span>
+    </motion.button>
   );
 
   const renderScreen = () => {
@@ -606,12 +614,24 @@ const Dashboard = ({ user }) => {
     const activeFeature = features.find((f) => f.id === screen);
     if (activeFeature && activeFeature.component) {
       return (
-        <div className="fade-in">
+        <motion.div
+          key={screen}
+          initial={{ opacity: 0, x: 20, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -20, scale: 0.95 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           {renderBackButton()}
-          <div className="bg-white rounded-3xl shadow-large p-8 border border-gray-100">
-            {activeFeature.component}
-          </div>
-        </div>
+          <InteractiveCard className="shadow-large border border-white/20 dark:border-gray-700/20 overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              {activeFeature.component}
+            </motion.div>
+          </InteractiveCard>
+        </motion.div>
       );
     }
 
@@ -619,11 +639,46 @@ const Dashboard = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {renderNavBar()}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {renderScreen()}
-      </main>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900 relative overflow-hidden">
+      {/* Background Effects */}
+      <ParticleBackground type="floating" theme={theme} />
+      <FloatingElements theme={theme} />
+      
+      {/* Morphing background shapes */}
+      <motion.div
+        className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-400/10 to-purple-600/10 morphing-shape opacity-50"
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 180, 360],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+      
+      <motion.div
+        className="absolute bottom-20 left-20 w-64 h-64 bg-gradient-to-br from-purple-400/10 to-pink-600/10 morphing-shape opacity-50"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          rotate: [360, 180, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+      
+      <div className="relative z-10">
+        {renderNavBar()}
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          <AnimatePresence mode="wait">
+            {renderScreen()}
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 };
