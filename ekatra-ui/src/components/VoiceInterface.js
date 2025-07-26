@@ -53,15 +53,18 @@ const VoiceInterface = ({ onTranscriptionComplete, onSpeakResponse, isListening:
           }
         }
 
-        setTranscript(finalTranscript || interimTranscript);
+        // Update transcript with both final and interim results
+        const currentTranscript = finalTranscript || interimTranscript;
+        setTranscript(currentTranscript);
       };
 
       recognitionRef.current.onend = () => {
         setIsListening(false);
-        if (transcript.trim()) {
+        // Only process if we have a substantial transcript (more than 2 words)
+        if (transcript.trim() && transcript.trim().split(' ').length >= 1) {
           onTranscriptionComplete?.(transcript.trim());
-          setTranscript('');
         }
+        setTranscript('');
       };
 
       recognitionRef.current.onerror = (event) => {
