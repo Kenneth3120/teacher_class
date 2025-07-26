@@ -42,19 +42,30 @@ const InteractiveCard = ({
   return (
     <motion.div
       className={`
-        relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft 
-        border border-white/20 overflow-hidden cursor-pointer
+        relative rounded-2xl overflow-hidden backdrop-blur-sm
+        ${onClick ? 'cursor-pointer' : ''}
         ${className}
       `}
       style={{
         transformStyle: 'preserve-3d',
+        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
       }}
       animate={{
         rotateY: hoverable && isHovered ? mousePosition.x * tiltIntensity : 0,
         rotateX: hoverable && isHovered ? -mousePosition.y * tiltIntensity : 0,
         boxShadow: isHovered 
-          ? `0 25px 50px -12px ${glowColors[glowColor]}, 0 0 0 1px ${glowColors[glowColor]}`
-          : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          ? `0 25px 50px -12px ${glowColors[glowColor] || glowColors.blue}, 0 0 0 2px ${glowColors[glowColor] || glowColors.blue}, 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5)`
+          : document.documentElement.classList.contains('dark')
+            ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
+            : "0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)",
+        background: document.documentElement.classList.contains('dark')
+          ? 'linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%)'
+          : 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        borderColor: document.documentElement.classList.contains('dark')
+          ? 'rgba(148, 163, 184, 0.2)'
+          : 'rgba(255, 255, 255, 0.3)',
       }}
       whileHover={hoverable ? { 
         scale: 1.02,
