@@ -309,15 +309,80 @@ Continue this pattern for all ${numQuestions} questions. Make sure each question
                 <AnimatedIcon icon="📝" animation="bounce" />
                 Generated Quiz
               </h3>
-              <MorphingButton
-                onClick={() => navigator.clipboard.writeText(quiz)}
-                variant="secondary"
-                size="sm"
-              >
-                <AnimatedIcon icon="📋" animation="bounce" size={16} />
-                Copy
-              </MorphingButton>
+              <div className="flex gap-2">
+                <MorphingButton
+                  onClick={() => navigator.clipboard.writeText(quiz)}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <AnimatedIcon icon="📋" animation="bounce" size={16} />
+                  Copy
+                </MorphingButton>
+                
+                <MorphingButton
+                  onClick={createGoogleForm}
+                  disabled={creatingForm || !quizData || quizData.length === 0}
+                  loading={creatingForm}
+                  variant="primary"
+                  size="sm"
+                >
+                  {!creatingForm && (
+                    <AnimatedIcon icon="📄" animation="glow" size={16} />
+                  )}
+                  Create Google Form
+                </MorphingButton>
+              </div>
             </div>
+
+            {/* Google Form Success Message */}
+            {formUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-4"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <AnimatedIcon icon="✅" animation="bounce" size={20} />
+                  <div>
+                    <h4 className="font-semibold text-green-800 dark:text-green-200">
+                      Google Form Created Successfully!
+                    </h4>
+                    <p className="text-sm text-green-600 dark:text-green-300">
+                      Your quiz has been converted to a Google Form
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <a
+                    href={formUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1"
+                  >
+                    <MorphingButton
+                      variant="success"
+                      size="sm"
+                      className="w-full"
+                    >
+                      <AnimatedIcon icon="🔗" animation="bounce" size={16} />
+                      Open Form
+                    </MorphingButton>
+                  </a>
+                  <MorphingButton
+                    onClick={() => {
+                      navigator.clipboard.writeText(formUrl);
+                      alert('Form URL copied to clipboard!');
+                    }}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <AnimatedIcon icon="📋" animation="bounce" size={16} />
+                    Copy Link
+                  </MorphingButton>
+                </div>
+              </motion.div>
+            )}
+            
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 overflow-auto max-h-96">
               <MarkdownRenderer content={quiz} />
             </div>
