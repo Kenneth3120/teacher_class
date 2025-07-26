@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { getGenerativeContent } from "./gemini";
 import InteractiveCard from "./components/InteractiveCard";
 import MorphingButton from "./components/MorphingButton";
 import AnimatedIcon from "./components/AnimatedIcon";
+import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const TimeSplitter = () => {
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState("");
   const [totalMinutes, setTotalMinutes] = useState(240);
   const [schedule, setSchedule] = useState([]);
+  const [aiSchedule, setAiSchedule] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const addSubject = () => {
     if (newSubject.trim()) {
       setSubjects([...subjects, { name: newSubject.trim(), priority: 1 }]);
       setNewSubject("");
     }
+  };
+
+  const removeSubject = (index) => {
+    setSubjects(subjects.filter((_, i) => i !== index));
   };
 
   const generateSchedule = () => {
@@ -29,6 +37,36 @@ const TimeSplitter = () => {
     setSchedule(generatedSchedule);
   };
 
+  const generateAISchedule = async () => {
+    if (subjects.length === 0) return;
+    
+    setIsGenerating(true);
+    try {
+      const subjectList = subjects.map(s => `${s.name} (Priority: ${s.priority === 1 ? 'Low' : s.priority === 2 ? 'Medium' : 'High'})`).join(', ');
+      
+      const prompt = `Create an optimized teaching schedule for a multigrade classroom with ${totalMinutes} minutes total time. 
+
+Subjects to include: ${subjectList}
+
+Please provide:
+1. A detailed time allocation for each subject
+2. Suggestions for optimal sequencing (which subjects should come first/last)
+3. Break recommendations
+4. Tips for managing multigrade activities
+5. Transition strategies between subjects
+
+Format your response in clear markdown with headers and bullet points.`;
+
+      const result = await getGenerativeContent(prompt);
+      setAiSchedule(result);
+    } catch (error) {
+      console.error("Error generating AI schedule:", error);
+      setAiSchedule("Failed to generate AI schedule. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <motion.div
@@ -36,7 +74,10 @@ const TimeSplitter = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold gradient-text mb-2">Smart Time Splitter</h2>
+        <h2 className="text-3xl font-bold gradient-text mb-2 flex items-center gap-3">
+          <AnimatedIcon icon="⏰" animation="float" size={32} />
+          Smart Time Splitter
+        </h2>
         <p className="text-gray-600 dark:text-gray-300">
           AI-powered schedule optimization for multigrade classrooms
         </p>
@@ -59,7 +100,7 @@ const TimeSplitter = () => {
                 type="number"
                 value={totalMinutes}
                 onChange={(e) => setTotalMinutes(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
               />
             </div>
             
@@ -69,10 +110,11 @@ const TimeSplitter = () => {
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
                 placeholder="Enter subject name"
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 onKeyPress={(e) => e.key === 'Enter' && addSubject()}
               />
-              <MorphingButton onClick={addSubject} size="sm">
+              <MorphingButton onClick={addSubject} size="sm" variant="primary">
+                <AnimatedIcon icon="➕" animation="bounce" size={16} />
                 Add
               </MorphingButton>
             </div>
@@ -87,7 +129,7 @@ const TimeSplitter = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <span className="font-medium">{subject.name}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{subject.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-600 dark:text-gray-300">Priority:</span>
                       <select
@@ -97,34 +139,56 @@ const TimeSplitter = () => {
                           updated[index].priority = parseInt(e.target.value);
                           setSubjects(updated);
                         }}
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600"
+                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white text-sm"
                       >
                         <option value={1}>Low</option>
                         <option value={2}>Medium</option>
                         <option value={3}>High</option>
                       </select>
+                      <MorphingButton
+                        onClick={() => removeSubject(index)}
+                        size="sm"
+                        variant="danger"
+                      >
+                        <AnimatedIcon icon="🗑️" animation="shake" size={14} />
+                      </MorphingButton>
                     </div>
                   </motion.div>
                 ))}
               </div>
             )}
             
-            <MorphingButton 
-              onClick={generateSchedule}
-              disabled={subjects.length === 0}
-              variant="primary"
-              className="w-full"
-            >
-              <AnimatedIcon icon="⚡" animation="glow" size={16} />
-              Generate Schedule
-            </MorphingButton>
+            <div className="flex gap-2">
+              <MorphingButton 
+                onClick={generateSchedule}
+                disabled={subjects.length === 0}
+                variant="secondary"
+                className="flex-1"
+              >
+                <AnimatedIcon icon="⚡" animation="glow" size={16} />
+                Quick Schedule
+              </MorphingButton>
+              
+              <MorphingButton 
+                onClick={generateAISchedule}
+                disabled={subjects.length === 0 || isGenerating}
+                loading={isGenerating}
+                variant="primary"
+                className="flex-1"
+              >
+                {!isGenerating && (
+                  <AnimatedIcon icon="🤖" animation="glow" size={16} />
+                )}
+                AI Schedule
+              </MorphingButton>
+            </div>
           </div>
         </InteractiveCard>
 
         {/* Schedule Display */}
         <InteractiveCard className="p-6" glowColor="amber">
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <AnimatedIcon icon="⏰" animation="float" />
+            <AnimatedIcon icon="📅" animation="float" />
             Generated Schedule
           </h3>
           
@@ -173,6 +237,35 @@ const TimeSplitter = () => {
           )}
         </InteractiveCard>
       </div>
+
+      {/* AI Generated Schedule */}
+      {aiSchedule && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <InteractiveCard className="p-6" glowColor="blue">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <AnimatedIcon icon="🤖" animation="glow" />
+                AI-Optimized Schedule
+              </h3>
+              <MorphingButton
+                onClick={() => navigator.clipboard.writeText(aiSchedule)}
+                variant="secondary"
+                size="sm"
+              >
+                <AnimatedIcon icon="📋" animation="bounce" size={16} />
+                Copy
+              </MorphingButton>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 overflow-auto max-h-96">
+              <MarkdownRenderer content={aiSchedule} />
+            </div>
+          </InteractiveCard>
+        </motion.div>
+      )}
     </div>
   );
 };
