@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getGenerativeContent } from "./gemini";
 import InteractiveCard from "./components/InteractiveCard";
 import MorphingButton from "./components/MorphingButton";
 import AnimatedIcon from "./components/AnimatedIcon";
 import MarkdownRenderer from "./components/MarkdownRenderer";
+import VoiceInterface from "./components/VoiceInterface";
 
 const Alfred = () => {
   const [messages, setMessages] = useState([]);
