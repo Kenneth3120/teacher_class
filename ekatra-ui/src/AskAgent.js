@@ -4,6 +4,7 @@ import { getGenerativeContent } from "./gemini";
 import InteractiveCard from "./components/InteractiveCard";
 import MorphingButton from "./components/MorphingButton";
 import AnimatedIcon from "./components/AnimatedIcon";
+import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const AskAgent = () => {
   const [query, setQuery] = useState("");
@@ -20,7 +21,7 @@ const AskAgent = () => {
     
     try {
       const result = await getGenerativeContent(
-        `You are an intelligent teaching assistant. Please provide a helpful and detailed answer to this educational question: ${query}`
+        `You are an intelligent teaching assistant. Please provide a helpful and detailed answer to this educational question: ${query}. Format your response using proper markdown with headers, bullet points, and clear sections where appropriate.`
       );
       
       const agentResponse = { type: "answer", content: result, timestamp: new Date() };
@@ -163,7 +164,7 @@ const AskAgent = () => {
                   transition={{ delay: index * 0.1, duration: 0.5 }}
                   className={`flex ${item.type === 'question' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-2xl ${item.type === 'question' ? 'ml-12' : 'mr-12'}`}>
+                  <div className={`w-full max-w-4xl ${item.type === 'question' ? 'ml-auto' : 'mr-auto'}`}>
                     <InteractiveCard
                       className={`p-4 ${
                         item.type === 'question'
@@ -180,7 +181,7 @@ const AskAgent = () => {
                           size={24}
                           color={item.type === 'question' ? 'white' : 'currentColor'}
                         />
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <p className={`text-xs mb-1 ${
                             item.type === 'question' 
                               ? 'text-white/80' 
@@ -188,13 +189,22 @@ const AskAgent = () => {
                           }`}>
                             {item.type === 'question' ? 'You' : 'Teaching Assistant'}
                           </p>
-                          <p className={`${
+                          <div className={`${
                             item.type === 'question' 
                               ? 'text-white' 
                               : 'text-gray-900 dark:text-white'
-                          }`} style={{ whiteSpace: 'pre-wrap' }}>
-                            {item.content}
-                          </p>
+                          }`}>
+                            {item.type === 'question' ? (
+                              <p style={{ whiteSpace: 'pre-wrap' }}>
+                                {item.content}
+                              </p>
+                            ) : (
+                              <MarkdownRenderer 
+                                content={item.content}
+                                className="prose-sm"
+                              />
+                            )}
+                          </div>
                           <p className={`text-xs mt-2 ${
                             item.type === 'question' 
                               ? 'text-white/60' 
@@ -213,33 +223,35 @@ const AskAgent = () => {
             {/* Loading indicator */}
             {isLoading && (
               <motion.div
-                className="flex justify-start mr-12"
+                className="flex justify-start"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <InteractiveCard className="p-4" glowColor="green" hoverable={false}>
-                  <div className="flex items-center gap-3">
-                    <AnimatedIcon icon="🤖" animation="pulse" size={24} />
-                    <div className="flex items-center space-x-1">
-                      <span className="text-gray-600 dark:text-gray-300">Thinking</span>
-                      {[0, 1, 2].map((i) => (
-                        <motion.span
-                          key={i}
-                          className="w-1 h-1 bg-blue-500 rounded-full"
-                          animate={{
-                            y: [0, -5, 0],
-                            opacity: [0.5, 1, 0.5],
-                          }}
-                          transition={{
-                            duration: 1,
-                            repeat: Infinity,
-                            delay: i * 0.2,
-                          }}
-                        />
-                      ))}
+                <div className="w-full max-w-4xl mr-auto">
+                  <InteractiveCard className="p-4" glowColor="green" hoverable={false}>
+                    <div className="flex items-center gap-3">
+                      <AnimatedIcon icon="🤖" animation="pulse" size={24} />
+                      <div className="flex items-center space-x-1">
+                        <span className="text-gray-600 dark:text-gray-300">Thinking</span>
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            className="w-1 h-1 bg-blue-500 rounded-full"
+                            animate={{
+                              y: [0, -5, 0],
+                              opacity: [0.5, 1, 0.5],
+                            }}
+                            transition={{
+                              duration: 1,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </InteractiveCard>
+                  </InteractiveCard>
+                </div>
               </motion.div>
             )}
           </div>

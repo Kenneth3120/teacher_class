@@ -4,17 +4,20 @@ import { getGenerativeContent } from "./gemini";
 import InteractiveCard from "./components/InteractiveCard";
 import MorphingButton from "./components/MorphingButton";
 import AnimatedIcon from "./components/AnimatedIcon";
+import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const Translator = () => {
   const [inputText, setInputText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [sourceLanguage, setSourceLanguage] = useState("English");
-  const [targetLanguage, setTargetLanguage] = useState("Spanish");
+  const [targetLanguage, setTargetLanguage] = useState("Hindi");
   const [isTranslating, setIsTranslating] = useState(false);
 
   const languages = [
-    "English", "Spanish", "French", "German", "Italian", "Portuguese",
-    "Hindi", "Chinese", "Japanese", "Korean", "Arabic", "Russian",
+    "English", "Hindi", "Tamil", "Telugu", "Bengali", "Marathi", 
+    "Gujarati", "Kannada", "Malayalam", "Punjabi", "Urdu",
+    "Spanish", "French", "German", "Italian", "Portuguese",
+    "Chinese", "Japanese", "Korean", "Arabic", "Russian",
     "Dutch", "Swedish", "Norwegian", "Danish", "Finnish"
   ];
 
@@ -23,7 +26,7 @@ const Translator = () => {
     
     setIsTranslating(true);
     try {
-      const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}. Only provide the translation, no additional text: "${inputText}"`;
+      const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}. Only provide the translation, no additional text or explanation: "${inputText}"`;
       const result = await getGenerativeContent(prompt);
       setTranslatedText(result.trim());
     } catch (error) {
@@ -53,7 +56,10 @@ const Translator = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold gradient-text mb-2">Multi-language Support</h2>
+        <h2 className="text-3xl font-bold gradient-text mb-2 flex items-center gap-3">
+          <AnimatedIcon icon="🌐" animation="float" size={32} />
+          Multi-language Support
+        </h2>
         <p className="text-gray-600 dark:text-gray-300">
           Translate content and communicate in multiple languages
         </p>
@@ -201,15 +207,17 @@ const Translator = () => {
                   </div>
                 </div>
               ) : translatedText ? (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                   className="leading-relaxed"
-                  style={{ whiteSpace: 'pre-wrap' }}
                 >
-                  {translatedText}
-                </motion.p>
+                  <MarkdownRenderer 
+                    content={translatedText}
+                    className="prose-sm"
+                  />
+                </motion.div>
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                   <div className="text-center space-y-2">
@@ -223,7 +231,7 @@ const Translator = () => {
         </InteractiveCard>
       </div>
 
-      {/* Common Phrases */}
+      {/* Common Educational Phrases */}
       <InteractiveCard className="p-6" glowColor="purple">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <AnimatedIcon icon="💡" animation="glow" />
