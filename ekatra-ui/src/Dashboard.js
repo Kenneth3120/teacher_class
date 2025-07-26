@@ -268,6 +268,14 @@ const Dashboard = ({ user }) => {
       component: <TimetableManager />,
     },
     {
+      id: "doubt-scheduler",
+      icon: "🤝",
+      title: "Doubt Sessions",
+      description: "Schedule and manage personalized student doubt-clearing sessions.",
+      color: "indigo",
+      component: <DoubtScheduler />,
+    },
+    {
       id: "integrations",
       icon: "🔗",
       title: "Integrations",
