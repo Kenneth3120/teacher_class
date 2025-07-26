@@ -24,13 +24,21 @@ export const NotificationProvider = ({ children }) => {
       type: 'info', // 'success', 'error', 'warning', 'info'
       title: '',
       message: '',
-      duration: 5000,
+      duration: 5000, // Default 5 seconds
       ...notification
     };
 
-    setNotifications(prev => [...prev, newNotification]);
+    setNotifications(prev => {
+      // Prevent duplicate notifications with same message
+      const isDuplicate = prev.some(n => n.message === newNotification.message && n.title === newNotification.title);
+      if (isDuplicate) return prev;
+      
+      // Keep only last 5 notifications
+      const updatedNotifications = [...prev, newNotification];
+      return updatedNotifications.slice(-5);
+    });
 
-    // Auto remove after duration
+    // Auto remove after duration (only if duration > 0)
     if (newNotification.duration > 0) {
       setTimeout(() => {
         removeNotification(id);
