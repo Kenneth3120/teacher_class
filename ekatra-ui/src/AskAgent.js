@@ -41,7 +41,6 @@ const AskAgent = () => {
 
   const clearHistory = () => {
     setHistory([]);
-    setResponse("");
   };
 
   const suggestedQuestions = [
