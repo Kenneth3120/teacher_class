@@ -260,12 +260,12 @@ const Dashboard = ({ user }) => {
       component: <ParentCommunicator />,
     },
     {
-      id: "doubt-scheduler",
+      id: "timetable",
       icon: "📅",
-      title: "Doubt Sessions",
-      description: "Schedule and manage personalized student doubt-clearing sessions.",
-      color: "indigo",
-      component: <DoubtScheduler />,
+      title: "Timetable Manager",
+      description: "Manage your class schedule and get alerts before each class.",
+      color: "emerald",
+      component: <TimetableManager />,
     },
     {
       id: "integrations",
