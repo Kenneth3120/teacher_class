@@ -14,30 +14,41 @@ const Alfred = () => {
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
   const speakResponseRef = useRef(null);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const sendMessage = async (messageText = input) => {
+    if (!messageText.trim()) return;
     
-    const userMessage = { role: "user", content: input };
+    const userMessage = { role: "user", content: messageText };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
     
     try {
       const response = await getGenerativeContent(
-        `You are Alfred, an AI teaching assistant. Help the teacher with their question: ${input}`
+        `You are Alfred, an AI teaching assistant. Help the teacher with their question: ${messageText}`
       );
       
       const aiMessage = { role: "assistant", content: response };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Speak the response if voice interface is active
+      if (showVoiceInterface && speakResponseRef.current) {
+        speakResponseRef.current(response);
+      }
     } catch (error) {
       console.error("Error getting AI response:", error);
-      setMessages(prev => [...prev, { 
+      const errorMessage = { 
         role: "assistant", 
         content: "I apologize, but I'm having trouble responding right now. Please try again." 
-      }]);
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVoiceTranscription = (transcript) => {
+    setInput(transcript);
+    sendMessage(transcript);
   };
 
   return (
