@@ -71,6 +71,11 @@ const DoubtScheduler = () => {
 
   const addSession = () => {
     if (!newSession.studentName || !newSession.subject || !newSession.date || !newSession.time) {
+      addNotification({
+        type: 'error',
+        title: 'Missing Information',
+        message: 'Please fill in all required fields.'
+      });
       return;
     }
     
@@ -83,6 +88,12 @@ const DoubtScheduler = () => {
     setSessions([...sessions, session]);
     setNewSession({ studentName: "", subject: "", topic: "", date: "", time: "" });
     setShowAddForm(false);
+    
+    addNotification({
+      type: 'success',
+      title: 'Session Scheduled',
+      message: `Doubt session with ${session.studentName} scheduled for ${session.date} at ${session.time}`
+    });
   };
 
   const updateSessionStatus = (sessionId, status) => {
