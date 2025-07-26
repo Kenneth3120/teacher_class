@@ -57,7 +57,7 @@ const Translator = () => {
         <p className="text-gray-600 dark:text-gray-300">
           Translate content and communicate in multiple languages
         </p>
-      </div>
+      </motion.div>
 
       {/* Language Selection */}
       <InteractiveCard className="p-6" glowColor="cyan">
