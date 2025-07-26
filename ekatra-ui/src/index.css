@@ -84,17 +84,24 @@ a:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 0 0 1px var(--accent-blue);
 }
 
-/* Advanced Glass morphism effect */
+/* Enhanced Glass morphism effect */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  box-shadow: 
+    0 8px 32px rgba(31, 38, 135, 0.37),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .dark .glass {
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 41, 59, 0.2) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Enhanced gradient text */
