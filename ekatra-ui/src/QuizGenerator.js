@@ -324,52 +324,72 @@ Continue this pattern for all ${numQuestions} questions. Make sure each question
               </div>
             </div>
 
-            {/* Google Form Success Message */}
+            {/* Form URL Display */}
             {formUrl && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-4"
+                transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <AnimatedIcon icon="✅" animation="bounce" size={20} />
-                  <div>
-                    <h4 className="font-semibold text-green-800 dark:text-green-200">
-                      Google Form Created Successfully!
-                    </h4>
-                    <p className="text-sm text-green-600 dark:text-green-300">
-                      Your quiz has been converted to a Google Form
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <a
-                    href={formUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1"
-                  >
-                    <MorphingButton
-                      variant="success"
-                      size="sm"
-                      className="w-full"
+                <InteractiveCard className="p-6 mt-6" glowColor="green">
+                  <div className="text-center space-y-4">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <AnimatedIcon icon="🔗" animation="bounce" size={16} />
-                      Open Form
-                    </MorphingButton>
-                  </a>
-                  <MorphingButton
-                    onClick={() => {
-                      navigator.clipboard.writeText(formUrl);
-                      alert('Form URL copied to clipboard!');
-                    }}
-                    variant="secondary"
-                    size="sm"
-                  >
-                    <AnimatedIcon icon="📋" animation="bounce" size={16} />
-                    Copy Link
-                  </MorphingButton>
-                </div>
+                      <AnimatedIcon icon="✅" animation="bounce" size={48} />
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      Google Form Created Successfully!
+                    </h3>
+                    
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Your quiz has been converted to a Google Form. You can now share it with your students.
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <MorphingButton
+                        onClick={() => window.open(formUrl.shareable, '_blank')}
+                        variant="primary"
+                        className="flex-1 sm:flex-none"
+                      >
+                        <AnimatedIcon icon="👀" animation="bounce" size={16} />
+                        View Form
+                      </MorphingButton>
+                      
+                      <MorphingButton
+                        onClick={() => window.open(formUrl.edit, '_blank')}
+                        variant="secondary"
+                        className="flex-1 sm:flex-none"
+                      >
+                        <AnimatedIcon icon="✏️" animation="bounce" size={16} />
+                        Edit Form
+                      </MorphingButton>
+                      
+                      <MorphingButton
+                        onClick={() => {
+                          navigator.clipboard.writeText(formUrl.shareable);
+                          addNotification({
+                            type: 'success',
+                            title: 'Link Copied',
+                            message: 'Form link has been copied to clipboard!'
+                          });
+                        }}
+                        variant="success"
+                        className="flex-1 sm:flex-none"
+                      >
+                        <AnimatedIcon icon="📋" animation="bounce" size={16} />
+                        Copy Link
+                      </MorphingButton>
+                    </div>
+                    
+                    <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                      <p className="font-medium mb-1">Share this link with your students:</p>
+                      <p className="font-mono text-xs break-all">{formUrl.shareable}</p>
+                    </div>
+                  </div>
+                </InteractiveCard>
               </motion.div>
             )}
             
