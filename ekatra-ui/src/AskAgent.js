@@ -25,7 +25,6 @@ const AskAgent = () => {
       
       const agentResponse = { type: "answer", content: result, timestamp: new Date() };
       setHistory(prev => [...prev, agentResponse]);
-      setResponse(result);
     } catch (error) {
       console.error("Error getting response:", error);
       const errorResponse = { 
