@@ -218,6 +218,14 @@ const Dashboard = ({ user }) => {
       component: <QuizGenerator />,
     },
     {
+      id: "visual-content",
+      icon: "🎨",
+      title: "Visual Content Generator",
+      description: "Create engaging visual content and illustrations using AI.",
+      color: "rose",
+      component: <VisualContentGenerator />,
+    },
+    {
       id: "schedule",
       icon: "⏰",
       title: "Smart Time Splitter",
