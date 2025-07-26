@@ -145,8 +145,15 @@ const StudentManager = () => {
       }
 
       const apiKey = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
+      if (!apiKey) {
+        alert('Google Sheets API key is not configured. Please check your environment variables.');
+        return;
+      }
+      
+      console.log('Using API Key:', apiKey.substring(0, 20) + '...');
       const range = 'Sheet1!A:H'; // Adjust range as needed
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+      console.log('Requesting URL:', url);
       
       const response = await fetch(url);
       const data = await response.json();
