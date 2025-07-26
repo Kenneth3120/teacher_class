@@ -27,6 +27,52 @@ const StudentManager = () => {
     totalAssignments: 15
   });
 
+  // Enhanced rating calculation based on performance metrics
+  const calculatePerformanceRating = (student) => {
+    const scores = {
+      averageScore: (student.averageScore || 75) / 20, // Convert to 0-5 scale
+      completionRate: (student.completionRate || 85) / 20,
+      participation: (student.participation || 80) / 20
+    };
+    
+    // Weighted calculation
+    const weights = { averageScore: 0.4, completionRate: 0.35, participation: 0.25 };
+    const totalScore = 
+      scores.averageScore * weights.averageScore +
+      scores.completionRate * weights.completionRate +
+      scores.participation * weights.participation;
+    
+    return Math.round(Math.min(5, Math.max(1, totalScore)));
+  };
+
+  // Get performance band based on rating
+  const getPerformanceBand = (rating) => {
+    if (rating >= 4.5) return { band: 'Excellent', color: 'green', bgColor: 'bg-green-100 dark:bg-green-900/20' };
+    if (rating >= 3.5) return { band: 'Above Average', color: 'blue', bgColor: 'bg-blue-100 dark:bg-blue-900/20' };
+    if (rating >= 2.5) return { band: 'Average', color: 'yellow', bgColor: 'bg-yellow-100 dark:bg-yellow-900/20' };
+    if (rating >= 1.5) return { band: 'Below Average', color: 'orange', bgColor: 'bg-orange-100 dark:bg-orange-900/20' };
+    return { band: 'Needs Improvement', color: 'red', bgColor: 'bg-red-100 dark:bg-red-900/20' };
+  };
+
+  // Filter students by performance band
+  const getFilteredStudents = () => {
+    if (selectedFilter === 'all') return students;
+    
+    return students.filter(student => {
+      const rating = calculatePerformanceRating(student);
+      const band = getPerformanceBand(rating).band;
+      
+      switch (selectedFilter) {
+        case 'excellent': return band === 'Excellent';
+        case 'above-average': return band === 'Above Average';
+        case 'average': return band === 'Average';
+        case 'below-average': return band === 'Below Average';
+        case 'needs-improvement': return band === 'Needs Improvement';
+        default: return true;
+      }
+    });
+  };
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -35,7 +81,8 @@ const StudentManager = () => {
     try {
       const studentsCollectionRef = collection(db, "students");
       const data = await getDocs(studentsCollectionRef);
-      setStudents(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      const studentsData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setStudents(studentsData);
     } catch (error) {
       console.error("Error fetching students:", error);
     } finally {
@@ -48,14 +95,28 @@ const StudentManager = () => {
     
     try {
       const studentsCollectionRef = collection(db, "students");
-      await addDoc(studentsCollectionRef, {
+      const studentData = {
         ...newStudent,
-        createdAt: new Date().toISOString()
-      });
+        rating: calculatePerformanceRating(newStudent),
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      };
       
-      setNewStudent({ name: "", grade: "", rating: "3", subjects: "" });
+      await addDoc(studentsCollectionRef, studentData);
+      
+      setNewStudent({
+        name: "",
+        grade: "",
+        email: "",
+        subjects: "",
+        averageScore: 75,
+        completionRate: 85,
+        participation: 80,
+        assignmentsCompleted: 12,
+        totalAssignments: 15
+      });
       setShowAddForm(false);
-      fetchStudents();
+      fetchStudents(); // Real-time update
     } catch (error) {
       console.error("Error adding student:", error);
     }
@@ -64,9 +125,72 @@ const StudentManager = () => {
   const deleteStudent = async (studentId) => {
     try {
       await deleteDoc(doc(db, "students", studentId));
-      fetchStudents();
+      fetchStudents(); // Real-time update
     } catch (error) {
       console.error("Error deleting student:", error);
+    }
+  };
+
+  // Google Sheets import functionality
+  const importFromGoogleSheets = async () => {
+    if (!sheetUrl) return;
+    
+    setImportLoading(true);
+    try {
+      // Extract the sheet ID from the URL
+      const sheetId = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+      if (!sheetId) {
+        alert('Invalid Google Sheets URL. Please provide a valid URL.');
+        return;
+      }
+
+      const apiKey = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
+      const range = 'Sheet1!A:H'; // Adjust range as needed
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (!data.values) {
+        alert('No data found in the sheet or sheet is private.');
+        return;
+      }
+
+      // Assume first row is headers: Name, Grade, Email, Subjects, Average Score, Completion Rate, Participation
+      const rows = data.values.slice(1); // Skip header row
+      const studentsCollectionRef = collection(db, "students");
+      
+      for (const row of rows) {
+        if (row[0] && row[1]) { // At least name and grade required
+          const studentData = {
+            name: row[0] || '',
+            grade: row[1] || '',
+            email: row[2] || '',
+            subjects: row[3] || '',
+            averageScore: parseInt(row[4]) || 75,
+            completionRate: parseInt(row[5]) || 85,
+            participation: parseInt(row[6]) || 80,
+            assignmentsCompleted: parseInt(row[7]) || 12,
+            totalAssignments: 15,
+            createdAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString(),
+            importedFromSheets: true
+          };
+          studentData.rating = calculatePerformanceRating(studentData);
+          
+          await addDoc(studentsCollectionRef, studentData);
+        }
+      }
+      
+      fetchStudents(); // Real-time update
+      setSheetUrl('');
+      setShowImportForm(false);
+      alert(`Successfully imported ${rows.length} students from Google Sheets!`);
+    } catch (error) {
+      console.error("Error importing from Google Sheets:", error);
+      alert('Failed to import from Google Sheets. Please check the URL and try again.');
+    } finally {
+      setImportLoading(false);
     }
   };
 
