@@ -199,6 +199,33 @@ const Alfred = () => {
         )}
       </div>
 
+      {/* Voice Interface */}
+      <AnimatePresence>
+        {showVoiceInterface && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <InteractiveCard className="p-6 mb-6" glowColor="green">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  🎤 Voice Interaction
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Speak to Alfred in your preferred language
+                </p>
+              </div>
+              <VoiceInterface
+                onTranscriptionComplete={handleVoiceTranscription}
+                onSpeakResponse={speakResponseRef}
+              />
+            </InteractiveCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input Area */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
