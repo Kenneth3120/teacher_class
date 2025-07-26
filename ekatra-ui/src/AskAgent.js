@@ -8,7 +8,6 @@ import MarkdownRenderer from "./components/MarkdownRenderer";
 
 const AskAgent = () => {
   const [query, setQuery] = useState("");
-  const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState([]);
 
