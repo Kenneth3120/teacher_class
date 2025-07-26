@@ -22,47 +22,68 @@ import AnimatedIcon from "./components/AnimatedIcon";
 import AnimatedCounter from "./components/AnimatedCounter";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 
-// Enhanced Feature Card Component
+// Enhanced Feature Card Component with advanced interactions
 const FeatureCard = ({ icon, title, description, onClick, color = "blue", stats }) => {
-  const colorClasses = {
-    blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/25",
-    teal: "from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-teal-500/25",
-    purple: "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-purple-500/25",
-    amber: "from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-500/25",
-    pink: "from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-pink-500/25",
-    green: "from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-green-500/25",
-    orange: "from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-orange-500/25",
-    indigo: "from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 shadow-indigo-500/25",
-    gray: "from-gray-500 to-slate-500 hover:from-gray-600 hover:to-slate-600 shadow-gray-500/25",
-    cyan: "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 shadow-cyan-500/25",
-  };
-
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
-    <button
-      className={`group relative bg-gradient-to-br ${colorClasses[color]} text-white rounded-2xl shadow-large hover:shadow-xl p-6 flex flex-col items-start transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-white/20`}
+    <motion.div
+      className="relative group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between w-full mb-4">
-        <div className="text-3xl opacity-90 group-hover:opacity-100 transition-opacity">
-          {icon}
+      <InteractiveCard
+        className="p-6 cursor-pointer h-full"
+        glowColor={color}
+        hoverable={true}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <AnimatedIcon
+            icon={icon}
+            size={32}
+            animation="float"
+            hover={true}
+          />
+          {stats && (
+            <div className="text-right">
+              <motion.div 
+                className="text-2xl font-bold text-gray-900 dark:text-white"
+                animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
+              >
+                <AnimatedCounter end={stats.value} />
+              </motion.div>
+              <div className="text-xs text-gray-600 dark:text-gray-300">{stats.label}</div>
+            </div>
+          )}
         </div>
-        {stats && (
-          <div className="text-right">
-            <div className="text-2xl font-bold">{stats.value}</div>
-            <div className="text-xs opacity-75">{stats.label}</div>
-          </div>
-        )}
-      </div>
-      <h3 className="text-lg font-semibold mb-2 group-hover:text-white/95">{title}</h3>
-      <p className="text-sm opacity-90 group-hover:opacity-100 leading-relaxed">{description}</p>
-      
-      {/* Hover arrow */}
-      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
-    </button>
+        
+        <motion.h3 
+          className="text-lg font-semibold mb-2 text-gray-900 dark:text-white"
+          animate={isHovered ? { x: 5 } : { x: 0 }}
+        >
+          {title}
+        </motion.h3>
+        
+        <motion.p 
+          className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"
+          animate={isHovered ? { opacity: 1 } : { opacity: 0.8 }}
+        >
+          {description}
+        </motion.p>
+        
+        {/* Animated arrow */}
+        <motion.div
+          className="absolute bottom-4 right-4 text-gray-400"
+          animate={isHovered ? { x: 5, opacity: 1 } : { x: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <AnimatedIcon icon="→" size={16} animation="bounce" />
+        </motion.div>
+      </InteractiveCard>
+    </motion.div>
   );
 };
 
