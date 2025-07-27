@@ -2,14 +2,35 @@ import GoogleAuthService from './GoogleAuthService';
 
 class VertexAIService {
   constructor() {
-    this.projectId = 'ekatra-ai-35d6e'; // Your Google Cloud project ID
-    this.location = 'us-central1'; // Vertex AI location
+    this.projectId = process.env.REACT_APP_GOOGLE_CLOUD_PROJECT_ID || 'ekatra-ai-35d6e';
+    this.location = 'us-central1';
     this.baseUrl = `https://${this.location}-aiplatform.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}`;
+    this.isAvailable = false;
   }
 
-  // Generate images using Vertex AI Imagen
+  // Check if Vertex AI is properly configured
+  async checkAvailability() {
+    try {
+      // For now, we'll use a placeholder approach since Vertex AI requires complex OAuth setup
+      // In production, this would require proper Google Cloud OAuth2 setup
+      this.isAvailable = false;
+      return false;
+    } catch (error) {
+      console.error('Vertex AI not available:', error);
+      this.isAvailable = false;
+      return false;
+    }
+  }
+
+  // Generate images using placeholder approach (since Vertex AI requires OAuth2)
   async generateImage(prompt, options = {}) {
     try {
+      // Check if service is available
+      if (!await this.checkAvailability()) {
+        throw new Error('Vertex AI Image Generation is not currently available. This feature requires Google Cloud OAuth2 authentication which needs to be configured by an administrator.');
+      }
+
+      // This would normally make the actual API call to Vertex AI
       const requestBody = {
         instances: [{
           prompt: prompt,
@@ -41,6 +62,10 @@ class VertexAIService {
       return result.predictions || [];
     } catch (error) {
       console.error('Error generating image:', error);
+      // Provide helpful error messages for common issues
+      if (error.message.includes('authentication') || error.message.includes('UNAUTHENTICATED')) {
+        throw new Error('Image Generation requires Google Cloud authentication. Please contact your administrator to enable Vertex AI access with proper OAuth2 credentials.');
+      }
       throw error;
     }
   }
